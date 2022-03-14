@@ -7,6 +7,7 @@ ScreenManager:
 <Login>:
     name: "login"
     MDFloatLayout:
+        id: login-layout
         md_bg_color: 1, 1, 1, 1
         Image:
             source: "images\logo.png"
@@ -14,20 +15,16 @@ ScreenManager:
             pos_hint : {"center_x": 0.5, "center_y": 0.8}
 
         MDTextField:
-            id: "username"
+            id: username
             hint_text : "Username"
-            required : True
-            color_mode : 'custom'
             line_color_focus : 1, 0, 1, 1
             line_color_normal : 1, 0, 1, 1
             pos_hint : {"center_x":0.5, "center_y":0.5}
             size_hint: 0.5, 0.1
 
         MDTextField:
-            id: "password"
+            id: password
             hint_text : "Password"
-            required : True
-            color_mode : 'custom'
             line_color_focus : 1, 0, 1, 1
             line_color_normal : 1, 0, 1, 1
             pos_hint : {"center_x":0.5, "center_y":0.4}
@@ -47,6 +44,7 @@ ScreenManager:
                     radius : [25, 25, 25, 25]
 
         Button:
+            id:login-button
             text : ""
             pos_hint : {"center_x":0.5, "center_y":0.2}
             background_color: 0,0,0,0
@@ -63,6 +61,7 @@ ScreenManager:
             font_size : "18sp"
 
         MDTextButton:
+            id:signup-txtbutton
             text: "Sign Up?"
             halign : "center"
             pos_hint : {"center_y":0.1}
@@ -90,28 +89,25 @@ ScreenManager:
                 root.manager.transition.direction="right"
                 root.manager.current = "login"
         MDTextField:
-            id: "name"
+            id: name
             hint_text : "Name"
             color_mode : 'custom'
-            required : True
             line_color_focus : 1, 0, 1, 1
             line_color_normal : 1, 0, 1, 1
             pos_hint : {"center_x":0.5, "center_y":0.7}
             size_hint: 0.5, 0.1
         MDTextField:
-            id: "username"
+            id: username
             hint_text : "Username"
             color_mode : 'custom'
-            required : True
             line_color_focus : 1, 0, 1, 1
             line_color_normal : 1, 0, 1, 1
             pos_hint : {"center_x":0.5, "center_y":0.6}
             size_hint: 0.5, 0.1
         MDTextField:
-            id: "password"
+            id: password
             hint_text : "Password"
             color_mode : 'custom'
-            required : True
             line_color_focus : 1, 0, 1, 1
             line_color_normal : 1, 0, 1, 1
             pos_hint : {"center_x":0.5, "center_y":0.5}
@@ -120,7 +116,6 @@ ScreenManager:
         MDTextField:
             hint_text : "Confirm Password"
             color_mode : 'custom'
-            required : True
             line_color_focus : 1, 0, 1, 1
             line_color_normal : 1, 0, 1, 1
             pos_hint : {"center_x":0.5, "center_y":0.4}
@@ -141,6 +136,7 @@ ScreenManager:
 
 
         Button:
+            id:"signup-button"
             text : ""
             background_color : 0, 0, 0, 0
             pos_hint :{"center_x": 0.5, "center_y": 0.2}
@@ -159,6 +155,7 @@ ScreenManager:
 <Dashboard>:
     name: "dashboard"
     MDFloatLayout:
+        id:dash-layout
         md_bg_color : 190/255, 81/255, 217/255, 0.55
         Image:
             source : "images\dashlogo.png"
@@ -232,34 +229,52 @@ ScreenManager:
 <Journal>:
     name:"journal"
     MDFloatLayout:
-        md_bg_color : 190/255, 81/255, 217/255, 0.55
         MDFloatLayout:
-            md_bg_color:1,1,1,1
-            size_hint:1, 0.18
-            pos_hint:{"center_y": 0.05}
+            id:journallayout
+            md_bg_color : 190/255, 81/255, 217/255, 0.55
+            MDFloatLayout:
+                md_bg_color:1,1,1,1
+                size_hint:1, 0.13
+                pos_hint:{"center_y": 0.05}
 
-        MDIconButton:
-            icon: "keyboard-backspace"
-            size: 0.2, 0.4
-            pos_hint : {"center_x": 0.04, "center_y": 0.9}
-            on_release:
-                root.manager.transition.direction="right"
-                root.manager.current = "dashboard"
+            MDIconButton:
+                icon: "keyboard-backspace"
+                size: 0.2, 0.4
+                pos_hint : {"center_x": 0.04, "center_y": 0.9}
+                on_release:
+                    root.manager.transition.direction="right"
+                    root.manager.current = "dashboard"
 
-        MDIconButton:
-            icon: "plus-circle-outline"
-            theme_text_color: "Custom"
-            text_color : 140/255, 35/255, 205/255, 1
-            pos_hint: {"center_x": 0.5, "center_y":0.07}
-            size: 0.2, 0.4
-            on_release:
-                root.manager.transition.direction = "left"
-                root.manager.current = "journalentry"
-        Label:
-            text: "New Entry"
-            pos_hint: {"center_x": 0.5, "center_y":0.04}
-            halign : "left"
-            color: 0, 0, 0, 1
+            MDIconButton:
+                icon: "plus-circle-outline"
+                theme_text_color: "Custom"
+                text_color : 140/255, 35/255, 205/255, 1
+                pos_hint: {"center_x": 0.5, "center_y":0.07}
+                size: 0.2, 0.4
+                on_release:
+                    root.manager.transition.direction = "left"
+                    root.manager.current = "journalentry"
+            Label:
+                text: "New Entry"
+                pos_hint: {"center_x": 0.5, "center_y":0.04}
+                halign : "left"
+                color: 0, 0, 0, 1
+        ScrollView:
+            size_hint_y: 0.77
+            pos_hint:{"x": 0, "y": 0.116}
+            do_scroll_x: False
+            do_scroll_y: True
+            BoxLayout:
+                id:entrylist
+                orientation: 'vertical'
+                size:(root.width, root.height)
+                height:self.minimum_height
+                size_hint: None, None
+                pos_hint: {"top":5}
+                cols: 1
+                spacing: 5
+                
+              
 
 <JournalEntry>:
     name : "journalentry"
@@ -273,7 +288,7 @@ ScreenManager:
                 root.manager.transition.direction="right"
                 root.manager.current = "journal"
     MDTextField:
-        id: "title"
+        id: title
         hint_text: "Title"
         mode: "rectangle"
         line_color_focus : 140/255, 35/255, 205/255, 1
@@ -281,7 +296,7 @@ ScreenManager:
         size_hint: 0.85, 0.09
     
     MDTextField:
-        id: "entry"
+        id: entry
         hint_text: "Entry"
         mode: "rectangle"
         line_color_focus : 140/255, 35/255, 205/255, 1
@@ -303,6 +318,7 @@ ScreenManager:
 
 
         Button:
+            id:save-entry
             text : ""
             background_color : 0, 0, 0, 0
             pos_hint :{"center_x": 0.5, "center_y": 0.1}
@@ -317,5 +333,23 @@ ScreenManager:
             color: 0, 0, 0, 1
             font_name : "fonts\BarlowCondensed-Regular.ttf"
             font_size : "18sp"
+<Entry>:
+    padding: 16
+    size_hint: None, None
+    size: "200dp", "100dp"
+    pos_hint:{"center_x": 0.5, "center_y": 0.8}
+    MDRelativeLayout:
+        size_hint: None, None
+        size: root.size
 
+        MDIconButton:
+            icon: "dots-vertical"
+            pos:
+                root.width - (self.width + root.padding[0] + dp(4)),root.height - (self.height + root.padding[0] + dp(4))
+
+        MDLabel:
+            id: label
+            text: root.text
+            adaptive_size: True
+            color: .2, .2, .2, .8
     
