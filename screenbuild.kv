@@ -1,4 +1,5 @@
 ScreenManager:
+    id: scr_manager
     Login:
     Signup:
     Dashboard:
@@ -6,6 +7,8 @@ ScreenManager:
     JournalEntry:
 <Login>:
     name: "login"
+    username : username
+    password : password
     MDFloatLayout:
         md_bg_color: 1, 1, 1, 1
         Image:
@@ -23,13 +26,12 @@ ScreenManager:
                     pos: self.pos
                     radius : [25, 25, 25, 25]
             Button:
+                id: login
                 text : ""
                 pos_hint : {"center_x":0.5, "center_y":0.2}
                 background_color: 0,0,0,0
-                on_press: root.login_user
-                on_release:
-                    root.manager.transition.direction = "left"
-                    root.manager.current = "dashboard"
+                on_press: root.login_user()
+                
 
         MDLabel:
             text: "Log In"
@@ -112,10 +114,8 @@ ScreenManager:
             text : ""
             background_color : 0, 0, 0, 0
             pos_hint :{"center_x": 0.5, "center_y": 0.2}
-            on_press:root.signup_user
-            on_release:
-                root.manager.transition.direction = "right"
-                root.manager.current = "login"
+            on_press:root.signup_user()
+            
         
         MDLabel:
             text: "Sign Up"
@@ -333,10 +333,9 @@ ScreenManager:
             text : ""
             background_color : 0, 0, 0, 0
             pos_hint :{"center_x": 0.5, "center_y": 0.1}
-            on_press:root.save
-            on_release:
-                root.manager.transition.direction = "right"
-                root.manager.current = "journal"
+            on_press:root.save()
+            
+                
         
         MDLabel:
             text: "Save"
