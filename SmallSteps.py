@@ -10,6 +10,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 import sqlite3 
 from datetime import date
+from kivymd.uix.label import MDLabel
     
 
 class Login(MDScreen):
@@ -119,11 +120,7 @@ class Journal(MDScreen):
         con.commit()
         con.close()
                
-               
-
-
-
-      
+                     
 
 class JournalEntry(MDScreen):
     #add code to save entry
@@ -151,10 +148,26 @@ class JournalEntry(MDScreen):
         self.manager.current = "journal"
         
 
+class ChatBot(MDScreen):
+    #add code to listen and respond to a user here
+    #there's a label that says tap to speak, change it when to 'Listening' when the app is waiting for input,
+    #change it to 'Speaking' when the app is speaking
+    def talk(self):
+        self.ids.chatbox.add_widget(UserMessage(text='blah'*30))
+        self.ids.chatbox.add_widget(Response(text='blah'*30))
+        
+
 class Entry(BoxLayout):
     text = StringProperty()
     text1 = StringProperty()
-   
+
+class UserMessage(MDLabel):
+    text = StringProperty()
+    
+
+class Response(MDLabel):
+    text = StringProperty()
+    
     
 
 class SmallStepsApp(MDApp):
