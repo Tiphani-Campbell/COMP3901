@@ -2,15 +2,16 @@ from turtle import title
 from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivymd.uix.screen import MDScreen
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, NumericProperty
 from kivymd.toast import toast
 from kivy import platform
-#from kivy.utils import get_color_from_hex
+from kivymd.uix.card import MDCard
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 import sqlite3 
 from datetime import date
 from kivymd.uix.label import MDLabel
+
     
 
 class Login(MDScreen):
@@ -153,8 +154,17 @@ class ChatBot(MDScreen):
     #there's a label that says tap to speak, change it when to 'Listening' when the app is waiting for input,
     #change it to 'Speaking' when the app is speaking
     def talk(self):
-        self.ids.chatbox.add_widget(UserMessage(text='blah'*30))
+        usermess=self.ids.usertext.text
+        size=0
+        if len(usermess)<=6:
+            size = 0.08
+        if len(usermess)<=14:
+            size = 0.22
+        else:
+            size = 0.4
+        self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
         self.ids.chatbox.add_widget(Response(text='blah'*30))
+        self.ids.usertext.text = ""
         
 
 class Entry(BoxLayout):
@@ -163,12 +173,18 @@ class Entry(BoxLayout):
 
 class UserMessage(MDLabel):
     text = StringProperty()
+    size_hint_x = NumericProperty()
     
 
 class Response(MDLabel):
     text = StringProperty()
-    
-    
+    size_hint_x = NumericProperty()
+
+class RecommendedPlans(MDCard):
+    pass 
+
+class ActivePlans(MDCard):
+    pass
 
 class SmallStepsApp(MDApp):
     def build(self):

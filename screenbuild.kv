@@ -176,12 +176,15 @@ ScreenManager:
             pos_hint : {"center_x": 0.2, "center_y": 0.9}
 
         Label:
-            text : "Plans"
+            text : "Recommended Plans"
             halign : "left"
-            pos_hint : {"center_x":0.1,"center_y": 0.7}
+            pos_hint : {"center_x":0.15,"center_y": 0.7}
             color : 0, 0, 0, 1
             font_size: "18sp"
             font_name : "fonts\RedHatDisplay-Regular.ttf"
+        
+    
+        
 
         Label:
             text: "My Plans"
@@ -240,6 +243,9 @@ ScreenManager:
             pos_hint: {"center_x": 0.9, "center_y":0.04}
             halign : "left"
             color: 0, 0, 0, 1
+
+   
+    
         
 
 <Journal>:
@@ -356,27 +362,31 @@ ScreenManager:
         MDIconButton:
             icon: "keyboard-backspace"
             size: 0.2, 0.4
-            pos_hint : {"center_x": 0.04, "center_y": 0.9}
+            pos_hint : {"center_x": 0.04, "center_y": 0.95}
             on_release:
                 root.manager.transition.direction="right"
                 root.manager.current = "dashboard"
         MDIconButton:
-            icon: "microphone"
-            pos_hint: {"center_x": 0.5, "center_y":0.09}
+            icon: "send"
+            pos_hint: {"center_x": 0.9, "center_y":0.09}
             theme_text_color : "Custom"
-            text_color : 140/255, 35/255, 205/255, 1
-            user_font_size: "20sp"
+            text_color: 1,1,1,1
+            md_bg_color: 140/255, 35/255, 205/255, 1
+            user_font_size: "25sp"
             on_press: root.talk()
-        MDLabel:
-            text: "Tap to talk"
-            halign: 'center'
-            font_size: "16sp"
-            color: 1,1,1,1
-            pos_hint: {"center_x": 0.5, "center_y":0.045}
+        MDTextFieldRound:
+            id: usertext
+            hint_text: "Type your message"
+            pos_hint: {"center_x": 0.42, "center_y": 0.09 }
+            multiline: True
+            size_hint: 0.75, 0.1
+            normal_color: 0, 0, 0, 0
+            cursor_color: 140/255, 35/255, 205/255, 1
+            cursor_width: "2sp"
                 
     ScrollView:
         size_hint_y: 0.77
-        pos_hint:{"x": 0, "y": 0.116}
+        pos_hint:{"x": 0, "y": 0.2}
         do_scroll_x: False
         do_scroll_y: True
         BoxLayout:
@@ -427,7 +437,8 @@ ScreenManager:
 
 <UserMessage>:
     text: root.text
-    size_hint: 0.5, None
+    halign: "left"
+    size_hint_y: None
     pos_hint:{"right": 0.98}
     text_size: self.width, None
     height: self.texture_size[1]
@@ -444,7 +455,8 @@ ScreenManager:
 
 <Response>:
     text: root.text
-    size_hint: 0.5, None
+    halign:"left"
+    size_hint: 0.4, None
     pos_hint:{"x": 0.02}
     text_size: self.width, None
     height: self.texture_size[1]
