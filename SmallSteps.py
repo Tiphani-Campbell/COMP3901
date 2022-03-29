@@ -2,7 +2,7 @@ from turtle import title
 from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivymd.uix.screen import MDScreen
-from kivy.properties import StringProperty, NumericProperty
+from kivy.properties import StringProperty, NumericProperty, ObjectProperty
 from kivymd.toast import toast
 from kivy import platform
 from kivymd.uix.card import MDCard
@@ -11,6 +11,8 @@ from kivy.clock import Clock
 import sqlite3 
 from datetime import date
 from kivymd.uix.label import MDLabel
+from kivymd.uix.menu import MDDropdownMenu
+import win32com.client as wincl
 
     
 
@@ -33,9 +35,7 @@ class Login(MDScreen):
                 self.manager.transition.direction = "left"
                 self.manager.current = "dashboard"  
                 
-            
 
-            
 
             con.commit()
             con.close()
@@ -153,23 +153,82 @@ class ChatBot(MDScreen):
     #add code to listen and respond to a user here
     #there's a label that says tap to speak, change it when to 'Listening' when the app is waiting for input,
     #change it to 'Speaking' when the app is speaking
+    start=0
+    def com_talk(self,message):
+        speak = wincl.Dispatch("SAPI.SpVoice")
+        speak.Speak(message)
+
+    def on_enter(self):
+        def com_talk(self):
+            speak = wincl.Dispatch("SAPI.SpVoice")
+            speak.Speak("Hello! How are you doing?")
+
+        self.ids.chatbox.add_widget(Response(text='Hello! How are you doing?'))
+        Clock.schedule_once(com_talk,1)
+    
+   
     def talk(self):
         usermess=self.ids.usertext.text
         size=0
+
         if len(usermess)<=6:
             size = 0.08
         if len(usermess)<=14:
-            size = 0.22
+            size = 0.22 
         else:
             size = 0.4
+
+        speak = wincl.Dispatch("SAPI.SpVoice")
         self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
-        self.ids.chatbox.add_widget(Response(text='blah'*30))
+     
+        self.com_talk(usermess) 
+        
+        say_this= "What else?" 
+        self.ids.chatbox.add_widget(Response(text=say_this))
+
+        self.com_talk(say_this)
+
         self.ids.usertext.text = ""
         
 
 class Entry(BoxLayout):
     text = StringProperty()
     text1 = StringProperty()
+    
+    def open_menu(self):
+        self.menu_list=[
+            {
+                "text": "View Entry",
+                "viewclass":"OneLineListItem",
+                "on_release": lambda x = "View":self.viewentry()
+            },
+            {
+                "text" : "Delete Entry",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda x = "Delete" :self.deleteentry()
+            }
+        ]
+
+        self.menu = MDDropdownMenu(
+            caller =self.ids.menubutton,
+            items = self.menu_list,
+            width_mult = 2
+        )
+        self.menu.open()
+
+    #still trying to get this function to change to the journal entry screen
+    def viewentry(self):
+        #Journal().manager.transition.direction = "left"
+        #Journal().manager.current = "journalentry"
+        #JournalEntry().ids.title.text = "Blue"
+        #JournalEntry().ids.entry.text = "Grape"
+        pass
+    
+    #put code here to delete an entry
+    def deleteentry(self):
+        print(self.text)
+        
+
 
 class UserMessage(MDLabel):
     text = StringProperty()
@@ -200,6 +259,8 @@ class SmallStepsApp(MDApp):
         con.close()
 
         screen_manager = Builder.load_file("screenbuild.kv")
+        
+
         return screen_manager
 
 if __name__ == "__main__":

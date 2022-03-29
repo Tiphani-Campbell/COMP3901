@@ -362,7 +362,7 @@ ScreenManager:
         MDIconButton:
             icon: "keyboard-backspace"
             size: 0.2, 0.4
-            pos_hint : {"center_x": 0.04, "center_y": 0.95}
+            pos_hint : {"center_x": 0.04, "center_y": 0.97}
             on_release:
                 root.manager.transition.direction="right"
                 root.manager.current = "dashboard"
@@ -418,9 +418,12 @@ ScreenManager:
         size: root.size
 
         MDIconButton:
+            id: menubutton
             icon: "dots-vertical"
             pos:
                 root.width - (self.width + root.padding[0] + dp(4)),root.height - (self.height + root.padding[0] + dp(4))
+            on_release:
+                root.open_menu()
 
         MDLabel:
             id: date
