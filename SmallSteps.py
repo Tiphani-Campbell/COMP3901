@@ -226,7 +226,20 @@ class Entry(BoxLayout):
     
     #put code here to delete an entry
     def deleteentry(self):
-        print(self.text)
+        title = self.ids.title.text
+        date = self.ids.date.text
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        task= "DELETE FROM journalentries WHERE title=?"
+        curs.execute(task, (title,))
+        
+        con.commit()
+        con.close()
+        self.ids.entrylist.remove_widget(
+            Entry(text=date, text1=title)
+        )
+
+        
         
 
 
