@@ -12,9 +12,11 @@ import sqlite3
 from datetime import date
 from kivymd.uix.label import MDLabel
 from kivymd.uix.menu import MDDropdownMenu
+from kivy.uix.screenmanager import ScreenManager
 import win32com.client as wincl
 
-    
+class WindowManager(ScreenManager):
+    Builder.load_file("screenbuild.kv")  
 
 class Login(MDScreen):
     #enter code for verification user here
@@ -209,6 +211,7 @@ class Entry(BoxLayout):
             }
         ]
 
+        
         self.menu = MDDropdownMenu(
             caller =self.ids.menubutton,
             items = self.menu_list,
@@ -216,18 +219,20 @@ class Entry(BoxLayout):
         )
         self.menu.open()
 
-    #still trying to get this function to change to the journal entry screen
+    #works now, so edit this to view entry
     def viewentry(self):
-        #Journal().manager.transition.direction = "left"
-        #Journal().manager.current = "journalentry"
-        #JournalEntry().ids.title.text = "Blue"
-        #JournalEntry().ids.entry.text = "Grape"
-        pass
+        MDApp.get_running_app().screen_manager.transition.direction = "left"
+        MDApp.get_running_app().screen_manager.current = "journalentry"
+        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.title.text = "Blue"
+        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.entry.text = "Grape"
+        self.menu.dismiss()
+        
     
     #put code here to delete an entry
     def deleteentry(self):
         title = self.ids.title.text
         date = self.ids.date.text
+        entry = Entry(text=date, text1=title)
         con = sqlite3.connect('journaldata.db')
         curs = con.cursor()
         task= "DELETE FROM journalentries WHERE title=?"
@@ -235,14 +240,31 @@ class Entry(BoxLayout):
         
         con.commit()
         con.close()
-        self.ids.entrylist.remove_widget(
-            Entry(text=date, text1=title)
-        )
+        MDApp.get_running_app().screen_manager.get_screen("journal").remove_widget(entry)
 
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        check = f"SELECT COUNT (*) FROM journalentries;"
+        numentries = curs.execute(check)
+        if numentries != 0:
+            curs.execute("SELECT * FROM journalentries")
+            entries = curs.fetchall()
+
+
+            MDApp.get_running_app().screen_manager.get_screen("journal").ids.entrylist.clear_widgets()
+     
+            for entry in entries:
+                MDApp.get_running_app().screen_manager.get_screen("journal").ids.entrylist.add_widget(
+                    Entry(text=entry[2], text1=entry[0])
+                )
+     
+                    
+
+        con.commit()
+        con.close()
+        self.menu.dismiss()
+    
         
-        
-
-
 class UserMessage(MDLabel):
     text = StringProperty()
     size_hint_x = NumericProperty()
@@ -271,10 +293,10 @@ class SmallStepsApp(MDApp):
         con.commit()
         con.close()
 
-        screen_manager = Builder.load_file("screenbuild.kv")
+        self.screen_manager = WindowManager()
         
 
-        return screen_manager
+        return self.screen_manager
 
 if __name__ == "__main__":
     SmallStepsApp().run()
