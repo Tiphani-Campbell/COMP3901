@@ -13,7 +13,9 @@ from datetime import date
 from kivymd.uix.label import MDLabel
 from kivymd.uix.menu import MDDropdownMenu
 from kivy.uix.screenmanager import ScreenManager
-import win32com.client as wincl
+from plyer import stt
+from plyer import tts
+from kivy.uix.checkbox import CheckBox
 
 class WindowManager(ScreenManager):
     Builder.load_file("screenbuild.kv")  
@@ -95,7 +97,11 @@ class Signup(MDScreen):
        
 
 class Dashboard(MDScreen):
-    pass
+    #edit this section to generate the recommended plans from the database.
+    def on_enter(self):
+        for i in range(0,10):
+            self.ids.reclist.add_widget(RecommendedPlans(plan_title='Plan', exercises='8 exercises'))
+    
 
 class Journal(MDScreen):
     #edit this function to receive the list of entry records from the query
@@ -152,24 +158,24 @@ class JournalEntry(MDScreen):
         
 
 class ChatBot(MDScreen):
+    
+    #start=0
+    #def com_talk(self,message):
+       # speak = wincl.Dispatch("SAPI.SpVoice")
+        #speak.Speak(message)
+
+    def on_enter(self):
+        self.ids.chatbox.clear_widgets()
+        mess='Hello! How are you doing?'
+        tts.speak(message=mess)
+        self.ids.chatbox.add_widget(Response(text=mess))
+        
     #add code to listen and respond to a user here
     #there's a label that says tap to speak, change it when to 'Listening' when the app is waiting for input,
     #change it to 'Speaking' when the app is speaking
-    start=0
-    def com_talk(self,message):
-        speak = wincl.Dispatch("SAPI.SpVoice")
-        speak.Speak(message)
-
-    def on_enter(self):
-        def com_talk(self):
-            speak = wincl.Dispatch("SAPI.SpVoice")
-            speak.Speak("Hello! How are you doing?")
-
-        self.ids.chatbox.add_widget(Response(text='Hello! How are you doing?'))
-        Clock.schedule_once(com_talk,1)
-    
-   
     def talk(self):
+        pass
+        '''
         usermess=self.ids.usertext.text
         size=0
 
@@ -180,6 +186,7 @@ class ChatBot(MDScreen):
         else:
             size = 0.4
 
+        
         speak = wincl.Dispatch("SAPI.SpVoice")
         self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
      
@@ -191,7 +198,17 @@ class ChatBot(MDScreen):
         self.com_talk(say_this)
 
         self.ids.usertext.text = ""
-        
+        '''
+
+class Progress(MDScreen):
+    pass
+
+class ChosenPlan(MDScreen):
+    #edit this section to show all chosen plans
+    def on_enter(self):
+        for i in range(0,12):
+            self.ids.aclist.add_widget(ActivePlans(plan_title='Plan', exercises='8 exercises'))
+        pass
 
 class Entry(BoxLayout):
     text = StringProperty()
@@ -256,14 +273,14 @@ class Entry(BoxLayout):
             for entry in entries:
                 MDApp.get_running_app().screen_manager.get_screen("journal").ids.entrylist.add_widget(
                     Entry(text=entry[2], text1=entry[0])
-                )
-     
-                    
+                )           
 
         con.commit()
         con.close()
         self.menu.dismiss()
-    
+
+
+        
         
 class UserMessage(MDLabel):
     text = StringProperty()
@@ -275,10 +292,28 @@ class Response(MDLabel):
     size_hint_x = NumericProperty()
 
 class RecommendedPlans(MDCard):
-    pass 
+    plan_title = StringProperty()
+    exercises = StringProperty() #number of exercises
+
+    #write code here to choose a plan
+    def choose_plan(self):
+        MDApp.get_running_app().screen_manager.transition.direction = "left"
+        MDApp.get_running_app().screen_manager.current = "plans"
+        
+    
 
 class ActivePlans(MDCard):
-    pass
+    plan_title = StringProperty() 
+    exercises = StringProperty() #number of exercises
+
+    #write code here to delete a plan, the steps are similar to deleting a journal entry
+    def delete_plan(self):
+        pass
+    
+    def view_exercises(self):
+        MDApp.get_running_app().screen_manager.transition.direction = "left"
+        MDApp.get_running_app().screen_manager.current = "progress"
+        
 
 class SmallStepsApp(MDApp):
     def build(self):
@@ -287,9 +322,8 @@ class SmallStepsApp(MDApp):
         curs.execute("""CREATE TABLE if not exists user (name text, username text, password text)""")
         curs.execute("""CREATE TABLE if not exists journalentries (title text, entry text, date text)""")
         curs.execute("""CREATE TABLE if not exists journal (title text, entry text, date text)""")
+
         
-
-
         con.commit()
         con.close()
 

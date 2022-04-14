@@ -6,6 +6,8 @@
     Journal:
     JournalEntry:
     ChatBot:
+    ChosenPlan:
+    Progress:
 <Login>:
     name: "login"
     username : username
@@ -60,7 +62,6 @@
     MDTextField:
         id: username
         hint_text: "Username"
-        required: True
         color_mode: 'custom'
         line_color_focus: 1, 0, 1, 1
         line_color_normal: 1, 0, 1, 1
@@ -71,15 +72,12 @@
     MDTextField:
         id: password
         hint_text : "Password"
-        required : True
         color_mode : 'custom'
         line_color_focus : 1, 0, 1, 1
         line_color_normal : 1, 0, 1, 1
         pos_hint : {"center_x":0.5, "center_y":0.4}
         size_hint : 0.5, 0.1
-        password : True
-    
-       
+        password : True   
 
             
 <SignUp>:
@@ -179,21 +177,21 @@
         Label:
             text : "Recommended Plans"
             halign : "left"
-            pos_hint : {"center_x":0.15,"center_y": 0.7}
+            pos_hint : {"center_x":0.15,"center_y": 0.8}
             color : 0, 0, 0, 1
             font_size: "18sp"
-            font_name : "fonts\RedHatDisplay-Regular.ttf"
-        
-    
-        
+            font_name : "fonts\RedHatDisplay-Regular.ttf"        
 
-        Label:
-            text: "My Plans"
-            halign: "left"
-            pos_hint: {'center_x': 0.1,'center_y': 0.4}
-            color: 0, 0, 0, 1
-            font_size: "18sp"
-            font_name : "fonts\RedHatDisplay-Regular.ttf"
+        MDTextButton:
+            id: myplans
+            text: "View chosen plans"
+            color: 60/255, 17/255, 76/255, 0.55
+            halign: "center"
+            pos_hint:{"center_x":0.8, "center_y":0.8}
+            underline: True
+            on_release:
+                root.manager.transition.direction = "left"
+                root.manager.current = "plans"
 
 
         MDFloatLayout:
@@ -202,13 +200,18 @@
             pos_hint:{"center_y": 0.05}
 
         MDIconButton:
-            icon: "menu"
+            icon: "logout"
             pos_hint:{"center_x": 0.1, "center_y":0.075}
             theme_text_color : "Custom"
             text_color : 140/255, 35/255, 205/255, 1
+            on_release: 
+                root.manager.get_screen('login').ids.username.text = ''
+                root.manager.get_screen('login').ids.password.text = ''
+                root.manager.transition.direction = "right"
+                root.manager.current = "login"
 
         Label:
-            text: "Menu"
+            text: "Logout"
             pos_hint: {"center_x": 0.1, "center_y":0.04}
             halign : "left"
             color: 0, 0, 0, 1
@@ -245,9 +248,21 @@
             halign : "left"
             color: 0, 0, 0, 1
 
-   
-    
-        
+    ScrollView:
+        size_hint_y: 0.62
+        pos_hint:{"x": 0.2, "y": 0.15}
+        do_scroll_x: False
+        do_scroll_y: True
+        GridLayout:
+            id:reclist
+            size:(root.width, root.height)
+            height:self.minimum_height
+            size_hint: None, None
+            pos_hint: {"top":4}
+            padding: 16
+            spacing: 5
+            cols: 2
+                  
 
 <Journal>:
     name:"journal"
@@ -294,7 +309,8 @@
             pos_hint: {"top":5}
             cols: 1
             spacing: 5
-        
+            padding: 16
+            
             
 
 <JournalEntry>:
@@ -337,7 +353,6 @@
                 pos: self.pos
                 radius : [25, 25, 25, 25]
 
-
         Button:
             id: save_entry
             text : ""
@@ -345,8 +360,6 @@
             pos_hint :{"center_x": 0.5, "center_y": 0.1}
             on_press:root.save()
             
-                
-        
         MDLabel:
             text: "Save"
             halign : "center"
@@ -368,26 +381,24 @@
                 root.manager.transition.direction="right"
                 root.manager.current = "dashboard"
         MDIconButton:
-            icon: "send"
-            pos_hint: {"center_x": 0.9, "center_y":0.09}
+            icon: "microphone"
+            pos_hint: {"center_x": 0.5, "center_y":0.09}
             theme_text_color : "Custom"
             text_color: 1,1,1,1
             md_bg_color: 140/255, 35/255, 205/255, 1
-            user_font_size: "25sp"
+            user_font_size: "20sp"
             on_press: root.talk()
-        MDTextFieldRound:
-            id: usertext
-            hint_text: "Type your message"
-            pos_hint: {"center_x": 0.42, "center_y": 0.09 }
-            multiline: True
-            size_hint: 0.75, 0.1
-            normal_color: 0, 0, 0, 0
-            cursor_color: 140/255, 35/255, 205/255, 1
-            cursor_width: "2sp"
-                
+        MDLabel:
+            id: chatlabel
+            text:"Tap to speak"
+            halign:'center'
+            pos_hint:{"center_x": 0.5, "center_y":0.04}
+            theme_text_color: "Custom"
+            text_color: 1,1,1,1
+            user_font_size: "24sp"                
     ScrollView:
         size_hint_y: 0.77
-        pos_hint:{"x": 0, "y": 0.2}
+        pos_hint:{"x": 0, "y": 0.15}
         do_scroll_x: False
         do_scroll_y: True
         BoxLayout:
@@ -399,7 +410,64 @@
             pos_hint: {"top":5}
             cols: 1
             spacing: 5
-            
+
+<ChosenPlan>:
+    name: "plans"
+    MDFloatLayout:
+        md_bg_color : 190/255, 81/255, 217/255, 0.55
+        MDIconButton:
+            icon: "keyboard-backspace"
+            size: 0.2, 0.4
+            pos_hint : {"center_x": 0.04, "center_y": 0.9}
+            on_release:
+                root.manager.transition.direction="right"
+                root.manager.current = "dashboard"
+    ScrollView:
+        size_hint_y: 0.85
+        pos_hint:{"x": 0.1, "y": 0.05}
+        do_scroll_x: False
+        do_scroll_y: True
+        GridLayout:
+            id:aclist
+            size:(root.width, root.height)
+            height:self.minimum_height
+            size_hint: None, None
+            pos_hint: {"top":4}
+            padding: 16
+            spacing: 5
+            cols: 3
+
+<Progress>:
+    name: "progress"
+    MDFloatLayout:
+        md_bg_color: 190/255, 81/255, 217/255, 0.55
+        MDIconButton:
+            icon: "keyboard-backspace"
+            size: 0.2, 0.4
+            pos_hint : {"center_x": 0.04, "center_y": 0.97}
+            on_release:
+                root.manager.transition.direction="right"
+                root.manager.current = "plans" 
+        MDLabel:
+            id: percentage
+            text: "0%"
+            halign: "center"
+            font_size: "72sp"
+    ScrollView:
+        size_hint_y: 0.85
+        pos_hint:{"x": 0.2, "y": 0.15}
+        do_scroll_x: False
+        do_scroll_y: True
+        GridLayout:
+            id:exlist
+            size:(root.width, root.height)
+            height:self.minimum_height
+            size_hint: None, None
+            pos_hint: {"top":4}
+            padding: 16
+            spacing: 5
+            cols: 2
+
 
 <Entry>:
     padding: 16
@@ -474,3 +542,88 @@
             size: self.width, self.height
             pos: self.pos
             radius: [23,23,23,0]
+
+<RecommendedPlans>:
+    size_hint:None, None
+    size: "200dp", "200dp"
+    pos_hint:{"center_x": 0.5, "center_y": 0.8}
+    radius: [15,15,15,15]
+    focus_behavior: True
+    elevation: 2
+    padding: 5
+    MDRelativeLayout:
+        size_hint: None, None
+        size: root.size
+        Image:
+            source: "images\medicon-removebg-preview.png"
+            size_hint: 0.5, 0.5
+            pos_hint:{"center_x":0.5, "center_y":0.7}
+        MDSeparator:
+            pos_hint:{"center_x":0.5, "center_y":0.45}
+            height:'1dp'
+            color: 191/255, 159/255, 64/255, 0.55
+        MDLabel:
+            id:title
+            text: root.plan_title
+            size_hint_y: None
+            pos_hint:{"center_x":0.5, "center_y":0.4}
+        MDLabel:
+            id:num_exercises
+            text: root.exercises
+            size_hint_y: None
+            pos_hint:{"center_x":0.5, "center_y":0.28}
+            font_size: "12sp"
+            color: 140/255, 35/255, 205/255, 1
+        MDTextButton:
+            text: "Choose Plan"
+            color: 164/255, 118/255, 171/255, 1
+            on_release: root.choose_plan()
+            font_size:"12sp"
+            pos_hint:{"center_x":0.7}
+
+<ActivePlans>:
+    size_hint:None, None
+    size: "200dp", "200dp"
+    pos_hint:{"center_x": 0.5, "center_y": 0.8}
+    radius: [15,15,15,15]
+    focus_behavior: True
+    elevation: 2
+    padding: 5
+    MDRelativeLayout:
+        size_hint: None, None
+        size: root.size
+        Image:
+            source: "images\medicon-removebg-preview.png"
+            size_hint: 0.5, 0.5
+            pos_hint:{"center_x":0.5, "center_y":0.7}
+        MDSeparator:
+            pos_hint:{"center_x":0.5, "center_y":0.45}
+            height:'1dp'
+            color: 191/255, 159/255, 64/255, 0.55
+        MDLabel:
+            id:title
+            text: root.plan_title
+            size_hint_y: None
+            pos_hint:{"center_x":0.5, "center_y":0.4}
+        MDLabel:
+            id:num_exercises
+            text: root.exercises
+            size_hint_y: None
+            pos_hint:{"center_x":0.5, "center_y":0.28}
+            font_size: "12sp"
+            color: 140/255, 35/255, 205/255, 1
+        MDIconButton:
+            icon: "delete"
+            user_font_size:"16sp"
+            pos_hint:{"center_x":0.8}
+            on_release: root.delete_plan()
+        MDTextButton:
+            text: "View"
+            font_size:"12sp"
+            color:164/255, 118/255, 171/255, 1
+            pos_hint:{"center_x":0.1}
+            on_release: root.view_exercises()
+
+
+    
+       
