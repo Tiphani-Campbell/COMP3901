@@ -393,12 +393,12 @@ class SmallStepsApp(MDApp):
         curs.execute("""CREATE TABLE if not exists user (name text, username text, password text)""")
         curs.execute("""CREATE TABLE if not exists journalentries (title text, entry text, date text)""")
         curs.execute("""CREATE TABLE if not exists journal (title text, entry text, date text)""")
-        curs.execute("""CREATE TABLE if not exists question (nervous text, panic text, breathingrapidly text, sweating text, troubleinconcentration text,
+        curs.execute("""CREATE TABLE if not exists questions (nervous text, panic text, breathingrapidly text, sweating text, troubleinconcentration text,
             insomnia text)""")
 
         file = open('quests.csv')
         contents = csv.reader(file)
-        insertrec = "INSERT INTO question (nervous, panic, breathingrapidly, sweating, troubleinconcentration, insomnia) VALUES(?, ?, ?, ?,?, ?)"
+        insertrec = "INSERT INTO questions (nervous, panic, breathingrapidly, sweating, troubleinconcentration, insomnia) VALUES(?, ?, ?, ?,?, ?)"
         curs.executemany(insertrec, contents)
 
         
