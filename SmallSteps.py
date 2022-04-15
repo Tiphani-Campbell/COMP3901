@@ -238,11 +238,34 @@ class Entry(BoxLayout):
 
     #works now, so edit this to view entry
     def viewentry(self):
+        title = self.ids.title.text
+        date = self.ids.date.text
+        entry = Entry(text=date, text1=title)
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        task1 = curs.execute("SELECT * FROM journalentries WHERE title = :t AND date = :d",
+            {
+                't' : title,
+                'd': date
+            }
+        ).fetchone()
+        entryinfo = task1[1]
+        
+        con.commit()
+        con.close()
+            
+        
         MDApp.get_running_app().screen_manager.transition.direction = "left"
         MDApp.get_running_app().screen_manager.current = "journalentry"
-        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.title.text = "Blue"
-        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.entry.text = "Grape"
+        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.title.text = title
+        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.entry.text = entryinfo
+        
+    
+
+        
+        
         self.menu.dismiss()
+        
         
     
     #put code here to delete an entry
@@ -252,8 +275,15 @@ class Entry(BoxLayout):
         entry = Entry(text=date, text1=title)
         con = sqlite3.connect('journaldata.db')
         curs = con.cursor()
-        task= "DELETE FROM journalentries WHERE title=?"
-        curs.execute(task, (title,))
+        task1 = curs.execute("SELECT * FROM journalentries WHERE title = :t AND date = :d",
+            {
+                't' : title,
+                'd': date
+            }
+        ).fetchone()
+        entryinfo = task1[1]
+        task2= "DELETE FROM journalentries WHERE title=? AND entry = ? "
+        curs.execute(task2, (title,entryinfo,))
         
         con.commit()
         con.close()
