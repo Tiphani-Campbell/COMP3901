@@ -138,6 +138,8 @@ class JournalEntry(MDScreen):
         entry = self.ids.entry.text
         con = sqlite3.connect('journaldata.db')
         curs = con.cursor()
+        task2= "DELETE FROM journalentries WHERE title=? OR entry = ? "
+        curs.execute(task2, (title,entry,))
         curs.execute("INSERT INTO journalentries VALUES (:title, :entry, :date) ",
         {
             'title' : title,
@@ -262,8 +264,24 @@ class Entry(BoxLayout):
         
     
 
-        
-        
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        check = f"SELECT COUNT (*) FROM journalentries;"
+        numentries = curs.execute(check)
+        if numentries != 0:
+            curs.execute("SELECT * FROM journalentries")
+            entries = curs.fetchall()
+
+
+            MDApp.get_running_app().screen_manager.get_screen("journal").ids.entrylist.clear_widgets()
+     
+            for entry in entries:
+                MDApp.get_running_app().screen_manager.get_screen("journal").ids.entrylist.add_widget(
+                    Entry(text=entry[2], text1=entry[0])
+                )           
+
+        con.commit()
+        con.close()
         self.menu.dismiss()
         
         
