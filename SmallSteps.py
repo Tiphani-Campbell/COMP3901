@@ -17,6 +17,7 @@ from plyer import stt
 from plyer import tts
 from kivy.uix.checkbox import CheckBox
 import csv
+import random
 
 class WindowManager(ScreenManager):
     Builder.load_file("screenbuild.kv")  
