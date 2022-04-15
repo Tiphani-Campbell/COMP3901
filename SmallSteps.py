@@ -16,6 +16,7 @@ from kivy.uix.screenmanager import ScreenManager
 from plyer import stt
 from plyer import tts
 from kivy.uix.checkbox import CheckBox
+import csv
 
 class WindowManager(ScreenManager):
     Builder.load_file("screenbuild.kv")  
@@ -167,11 +168,32 @@ class ChatBot(MDScreen):
         #speak.Speak(message)
 
     def on_enter(self):
-        self.ids.chatbox.clear_widgets()
-        mess='Hello! How are you doing?'
-        tts.speak(message=mess)
-        self.ids.chatbox.add_widget(Response(text=mess))
+        #self.ids.chatbox.clear_widgets()
+        #mess='Hello! How are you doing?'
+        #tts.speak(message=mess)
+        #self.ids.chatbox.add_widget(Response(text=mess))
         
+        def getquest():  #this can be moved I placed it here just for testing purposes
+            question = ""
+            con = sqlite3.connect('journaldata.db')
+            curs = con.cursor()
+            tasks = curs.execute( "SELECT * FROM questions").fetchone()
+            n = random.randint(0,5)
+            question = tasks[n]
+
+
+            con.commit()
+            con.close()
+                   
+            return question
+
+
+
+
+        randomquestion = getquest()
+        self.ids.chatbox.add_widget(Response(text=randomquestion))
+
+
     #add code to listen and respond to a user here
     #there's a label that says tap to speak, change it when to 'Listening' when the app is waiting for input,
     #change it to 'Speaking' when the app is speaking
@@ -370,6 +392,13 @@ class SmallStepsApp(MDApp):
         curs.execute("""CREATE TABLE if not exists user (name text, username text, password text)""")
         curs.execute("""CREATE TABLE if not exists journalentries (title text, entry text, date text)""")
         curs.execute("""CREATE TABLE if not exists journal (title text, entry text, date text)""")
+        curs.execute("""CREATE TABLE if not exists question (nervous text, panic text, breathingrapidly text, sweating text, troubleinconcentration text,
+            insomnia text)""")
+
+        file = open('quests.csv')
+        contents = csv.reader(file)
+        insertrec = "INSERT INTO question (nervous, panic, breathingrapidly, sweating, troubleinconcentration, insomnia) VALUES(?, ?, ?, ?,?, ?)"
+        curs.executemany(insertrec, contents)
 
         
         con.commit()
