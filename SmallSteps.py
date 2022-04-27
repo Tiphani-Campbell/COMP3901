@@ -24,8 +24,6 @@ import wavio as wv
 import os
 
 
-
-
 class WindowManager(ScreenManager):
     Builder.load_file("screenbuild.kv")  
 
@@ -147,6 +145,8 @@ class JournalEntry(MDScreen):
         entry = self.ids.entry.text
         con = sqlite3.connect('journaldata.db')
         curs = con.cursor()
+        task2= "DELETE FROM journalentries WHERE title=? OR entry = ? "
+        curs.execute(task2, (title,entry,))
         curs.execute("INSERT INTO journalentries VALUES (:title, :entry, :date) ",
         {
             'title' : title,
@@ -172,10 +172,10 @@ class ChatBot(MDScreen):
         self.ids.chatbox.clear_widgets()
 
     def on_enter(self):
-        self.ids.chatbox.clear_widgets()
-        mess='Hello! How are you doing?'
-        tts.speak(message=mess)
-        self.ids.chatbox.add_widget(Response(text=mess))
+        #self.ids.chatbox.clear_widgets()
+        #mess='Hello! How are you doing?'
+        #tts.speak(message=mess)
+        #self.ids.chatbox.add_widget(Response(text=mess))
         
         def getquest():  #this can be moved I placed it here just for testing purposes
             question = ""
@@ -196,6 +196,7 @@ class ChatBot(MDScreen):
         randomquestion = getquest()
         self.ids.chatbox.add_widget(Response(text=randomquestion))
         tts.speak(randomquestion) 
+
 
 
     #add code to listen and respond to a user here
@@ -304,11 +305,50 @@ class Entry(BoxLayout):
 
     #works now, so edit this to view entry
     def viewentry(self):
+        title = self.ids.title.text
+        date = self.ids.date.text
+        entry = Entry(text=date, text1=title)
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        task1 = curs.execute("SELECT * FROM journalentries WHERE title = :t AND date = :d",
+            {
+                't' : title,
+                'd': date
+            }
+        ).fetchone()
+        entryinfo = task1[1]
+        
+        con.commit()
+        con.close()
+            
+        
         MDApp.get_running_app().screen_manager.transition.direction = "left"
         MDApp.get_running_app().screen_manager.current = "journalentry"
-        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.title.text = "Blue"
-        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.entry.text = "Grape"
+        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.title.text = title
+        MDApp.get_running_app().screen_manager.get_screen("journalentry").ids.entry.text = entryinfo
+        
+    
+
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        check = f"SELECT COUNT (*) FROM journalentries;"
+        numentries = curs.execute(check)
+        if numentries != 0:
+            curs.execute("SELECT * FROM journalentries")
+            entries = curs.fetchall()
+
+
+            MDApp.get_running_app().screen_manager.get_screen("journal").ids.entrylist.clear_widgets()
+     
+            for entry in entries:
+                MDApp.get_running_app().screen_manager.get_screen("journal").ids.entrylist.add_widget(
+                    Entry(text=entry[2], text1=entry[0])
+                )           
+
+        con.commit()
+        con.close()
         self.menu.dismiss()
+        
         
     
     #put code here to delete an entry
@@ -318,8 +358,15 @@ class Entry(BoxLayout):
         entry = Entry(text=date, text1=title)
         con = sqlite3.connect('journaldata.db')
         curs = con.cursor()
-        task= "DELETE FROM journalentries WHERE title=?"
-        curs.execute(task, (title,))
+        task1 = curs.execute("SELECT * FROM journalentries WHERE title = :t AND date = :d",
+            {
+                't' : title,
+                'd': date
+            }
+        ).fetchone()
+        entryinfo = task1[1]
+        task2= "DELETE FROM journalentries WHERE title=? AND entry = ? "
+        curs.execute(task2, (title,entryinfo,))
         
         con.commit()
         con.close()
