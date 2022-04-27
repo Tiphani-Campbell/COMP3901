@@ -15,7 +15,16 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivy.uix.screenmanager import ScreenManager
 from plyer import stt
 from plyer import tts
-from kivy.uix.checkbox import CheckBox
+import csv
+import random
+import speech_recognition as sr
+import sounddevice as sd
+from scipy.io.wavfile import write
+import wavio as wv
+import os
+
+
+
 
 class WindowManager(ScreenManager):
     Builder.load_file("screenbuild.kv")  
@@ -159,10 +168,8 @@ class JournalEntry(MDScreen):
 
 class ChatBot(MDScreen):
     
-    #start=0
-    #def com_talk(self,message):
-       # speak = wincl.Dispatch("SAPI.SpVoice")
-        #speak.Speak(message)
+    def clearchat(self):
+        self.ids.chatbox.clear_widgets()
 
     def on_enter(self):
         self.ids.chatbox.clear_widgets()
@@ -170,35 +177,94 @@ class ChatBot(MDScreen):
         tts.speak(message=mess)
         self.ids.chatbox.add_widget(Response(text=mess))
         
+        def getquest():  #this can be moved I placed it here just for testing purposes
+            question = ""
+            con = sqlite3.connect('journaldata.db')
+            curs = con.cursor()
+            tasks = curs.execute( "SELECT * FROM questions").fetchone()
+            n = random.randint(0,5)
+            question = tasks[n]
+
+
+            con.commit()
+            con.close()
+                   
+            return question
+
+
+
+        randomquestion = getquest()
+        self.ids.chatbox.add_widget(Response(text=randomquestion))
+        tts.speak(randomquestion) 
+
+
     #add code to listen and respond to a user here
     #there's a label that says tap to speak, change it when to 'Listening' when the app is waiting for input,
     #change it to 'Speaking' when the app is speaking
     def talk(self):
-        pass
-        '''
-        usermess=self.ids.usertext.text
+        # Sampling frequency
+        freq = 44100
+        print('hi')
+        # Recording duration
+        duration = 5
+        # Start recorder with the given values of 
+        # duration and sample frequency
+        recording = sd.rec(int(duration * freq), 
+                        samplerate=freq, channels=2)
+
+        # Record audio for the given number of seconds
+        sd.wait()
+        if os.path.exists("recording1.wav"):
+            os.remove("recording1.wav")
+        else:
+            print("The file does not exist")
+        wv.write("recording1.wav", recording, freq, sampwidth=2)
+
+    def stoptalk(self):
+        
+        #Initiаlize  reсоgnizer  сlаss  (fоr  reсоgnizing  the  sрeeсh)
+        r = sr.Recognizer()
+        # Reading Audio file as source
+        #  listening  the  аudiо  file  аnd  stоre  in  аudiо_text  vаriаble
+        with sr.AudioFile('recording1.wav') as source:
+            audio_text = r.listen(source)
+        # recoginize_() method will throw a request error if the API is unreachable, hence using exception handling
+            try:
+                # using google speech recognition
+                textr = r.recognize_google(audio_text)
+                print('Converting audio transcripts into text ...')
+                print(textr)
+            except:
+                print('Sorry.. run again...')
+
         size=0
 
-        if len(usermess)<=6:
+        if len(textr)<=6:
             size = 0.08
-        if len(usermess)<=14:
+        if len(textr)<=14:
             size = 0.22 
         else:
             size = 0.4
 
-        
-        speak = wincl.Dispatch("SAPI.SpVoice")
-        self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
-     
-        self.com_talk(usermess) 
-        
-        say_this= "What else?" 
-        self.ids.chatbox.add_widget(Response(text=say_this))
+        self.ids.chatbox.add_widget(UserMessage(text=textr, size_hint_x = size))
+        tts.speak(textr) 
 
-        self.com_talk(say_this)
+        def getquest():  #this can be moved I placed it here just for testing purposes
+            question = ""
+            con = sqlite3.connect('journaldata.db')
+            curs = con.cursor()
+            tasks = curs.execute( "SELECT * FROM questions").fetchone()
+            n = random.randint(0,5)
+            question = tasks[n]
 
-        self.ids.usertext.text = ""
-        '''
+
+            con.commit()
+            con.close()
+                   
+            return question
+        randomquestion = getquest()
+        self.ids.chatbox.add_widget(Response(text=randomquestion))
+        tts.speak(randomquestion) 
 
 class Progress(MDScreen):
     pass
@@ -322,6 +388,13 @@ class SmallStepsApp(MDApp):
         curs.execute("""CREATE TABLE if not exists user (name text, username text, password text)""")
         curs.execute("""CREATE TABLE if not exists journalentries (title text, entry text, date text)""")
         curs.execute("""CREATE TABLE if not exists journal (title text, entry text, date text)""")
+        curs.execute("""CREATE TABLE if not exists questions (nervous text, panic text, breathingrapidly text, sweating text, troubleinconcentration text,
+            insomnia text)""")
+
+        file = open('quests.csv')
+        contents = csv.reader(file)
+        insertrec = "INSERT INTO questions (nervous, panic, breathingrapidly, sweating, troubleinconcentration, insomnia) VALUES(?, ?, ?, ?,?, ?)"
+        curs.executemany(insertrec, contents)
 
         
         con.commit()
@@ -331,6 +404,9 @@ class SmallStepsApp(MDApp):
         
 
         return self.screen_manager
+
+    def on_start(self):
+        request_permissions([Permission.RECORD_AUDIO]) 
 
 if __name__ == "__main__":
     SmallStepsApp().run()
