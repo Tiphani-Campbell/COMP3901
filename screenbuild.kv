@@ -382,22 +382,31 @@
             on_release:
                 root.manager.transition.direction="right"
                 root.manager.current = "dashboard"
+        MDTextFieldRound:
+            id: usertext
+            hint_text: "Type your message"
+            pos_hint: {"center_x": 0.45, "center_y": 0.09 }
+            multiline: True
+            size_hint: 0.8, 0.1
+            normal_color: 0, 0, 0, 0
+            cursor_color: 140/255, 35/255, 205/255, 1
+            cursor_width: "2sp"
         MDIconButton:
             icon: "microphone"
-            pos_hint: {"center_x": 0.5, "center_y":0.09}
+            pos_hint: {"center_x": 0.85, "center_y":0.09}
             theme_text_color : "Custom"
-            text_color: 1,1,1,1
-            md_bg_color: 140/255, 35/255, 205/255, 1
-            user_font_size: "20sp"
+            text_color: 140/255, 35/255, 205/255, 1
+            user_font_size: "30sp"
             on_press: root.talk()
-        MDLabel:
-            id: chatlabel
-            text:"Tap to speak"
-            halign:'center'
-            pos_hint:{"center_x": 0.5, "center_y":0.04}
+        MDIconButton:
+            icon: 'send'
+            pos_hint: {"center_x": 0.95, "center_y":0.09}
             theme_text_color: "Custom"
             text_color: 1,1,1,1
-            user_font_size: "24sp"                
+            md_bg_color: 140/255, 35/255, 205/255, 1
+            user_font_size: "25sp"
+            on_release: root.sendmess()
+                       
     ScrollView:
         size_hint_y: 0.77
         pos_hint:{"x": 0, "y": 0.15}
@@ -450,25 +459,50 @@
             on_release:
                 root.manager.transition.direction="right"
                 root.manager.current = "plans" 
+    
+    MDFloatLayout:
+        size_hint: 0.15, 0.08
+        pos_hint :{"center_x":0.5, "center_y":0.1}
+        canvas:
+            Color:
+                rgba: [140/255, 30/255, 205/255, 1]
+            
+            RoundedRectangle:
+                size: self.size
+                pos: self.pos
+                radius : [25, 25, 25, 25]
+
+        Button:
+            id: save
+            text : ""
+            background_color : 0, 0, 0, 0
+            pos_hint :{"center_x": 0.5, "center_y": 0.1}
+            on_press:root.complete()
+            
         MDLabel:
-            id: percentage
-            text: "0%"
-            halign: "center"
-            font_size: "72sp"
+            text: "Complete"
+            halign : "center"
+            pos_hint : {"center_x":0.5,"center_y":0.5}
+            color: 0, 0, 0, 1
+            font_name : "fonts\BarlowCondensed-Regular.ttf"
+            font_size : "18sp"
+
     ScrollView:
         size_hint_y: 0.85
         pos_hint:{"x": 0.2, "y": 0.15}
         do_scroll_x: False
         do_scroll_y: True
-        GridLayout:
+        BoxLayout:
             id:exlist
+            orientation: 'vertical'
             size:(root.width, root.height)
             height:self.minimum_height
             size_hint: None, None
-            pos_hint: {"top":4}
+            pos_hint: {"top":5}
             padding: 16
             spacing: 5
-            cols: 2
+            cols: 1
+           
 
 
 <Entry>:

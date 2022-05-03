@@ -2,7 +2,7 @@ from turtle import title
 from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivymd.uix.screen import MDScreen
-from kivy.properties import StringProperty, NumericProperty, ObjectProperty
+from kivy.properties import StringProperty, NumericProperty, ObjectProperty, DictProperty
 from kivymd.toast import toast
 from kivy import platform
 from kivymd.uix.card import MDCard
@@ -12,15 +12,16 @@ import sqlite3
 from datetime import date
 from kivymd.uix.label import MDLabel
 from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.selectioncontrol import MDCheckbox
 from kivy.uix.screenmanager import ScreenManager
 from plyer import stt
 from plyer import tts
 import csv
 import random
-import speech_recognition as sr
-import sounddevice as sd
-from scipy.io.wavfile import write
-import wavio as wv
+#import speech_recognition as sr
+#import sounddevice as sd
+#from scipy.io.wavfile import write
+#import wavio as wv
 import os
 
 
@@ -199,17 +200,37 @@ class ChatBot(MDScreen):
 
 
 
-    #add code to listen and respond to a user here
-    #there's a label that says tap to speak, change it when to 'Listening' when the app is waiting for input,
-    #change it to 'Speaking' when the app is speaking
+    #add code to process text message here
+    def sendmess(self):
+        usermess=self.ids.usertext.text
+        size=0
+        if len(usermess)<6:
+            size = 0.12
+        elif len(usermess)< 11:
+            size = 0.2
+        elif len(usermess) < 16:
+            size = 0.22
+        elif len(usermess)<21:
+            size=0.28
+        elif len(usermess)<26:
+            size = 0.3
+        else:
+            size = 0.4
+        self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
+        self.ids.chatbox.add_widget(Response(text='blah'*30))
+        self.ids.usertext.text = ""
+
+     #add code to listen to user here and also test if the platform is android before doing the talk fucntion.
+     # if it is android, display a message 'This feature is available on PC only'.  
+    
     def talk(self):
-        # Sampling frequency
+        #Sampling frequency
         freq = 44100
         print('hi')
-        # Recording duration
+        #Recording duration
         duration = 5
-        # Start recorder with the given values of 
-        # duration and sample frequency
+        #Start recorder with the given values of 
+        #duration and sample frequency
         recording = sd.rec(int(duration * freq), 
                         samplerate=freq, channels=2)
 
@@ -225,11 +246,11 @@ class ChatBot(MDScreen):
         
         #Initiаlize  reсоgnizer  сlаss  (fоr  reсоgnizing  the  sрeeсh)
         r = sr.Recognizer()
-        # Reading Audio file as source
-        #  listening  the  аudiо  file  аnd  stоre  in  аudiо_text  vаriаble
+        #Reading Audio file as source
+         # listening  the  аudiо  file  аnd  stоre  in  аudiо_text  vаriаble
         with sr.AudioFile('recording1.wav') as source:
             audio_text = r.listen(source)
-        # recoginize_() method will throw a request error if the API is unreachable, hence using exception handling
+        #recoginize_() method will throw a request error if the API is unreachable, hence using exception handling
             try:
                 # using google speech recognition
                 textr = r.recognize_google(audio_text)
@@ -240,10 +261,16 @@ class ChatBot(MDScreen):
 
         size=0
 
-        if len(textr)<=6:
-            size = 0.08
-        if len(textr)<=14:
-            size = 0.22 
+        if len(textr)<6:
+            size = 0.12
+        elif len(textr)< 11:
+            size = 0.2
+        elif len(textr) < 16:
+            size = 0.22
+        elif len(textr)<21:
+            size=0.28
+        elif len(textr)<26:
+            size = 0.3
         else:
             size = 0.4
 
@@ -268,7 +295,9 @@ class ChatBot(MDScreen):
         tts.speak(randomquestion) 
 
 class Progress(MDScreen):
-    pass
+    #write code here to mark an exercise complete
+    def complete(self):
+        pass
 
 class ChosenPlan(MDScreen):
     #edit this section to show all chosen plans
@@ -422,10 +451,13 @@ class ActivePlans(MDCard):
     #write code here to delete a plan, the steps are similar to deleting a journal entry
     def delete_plan(self):
         pass
-    
+    #write code here to display the exercises in a plan
     def view_exercises(self):
         MDApp.get_running_app().screen_manager.transition.direction = "left"
         MDApp.get_running_app().screen_manager.current = "progress"
+        for i in range (0,5):
+            MDApp.get_running_app().screen_manager.get_screen("progress").ids.exlist.add_widget(MDLabel(text='hello'))
+    
         
 
 class SmallStepsApp(MDApp):
@@ -438,11 +470,12 @@ class SmallStepsApp(MDApp):
         curs.execute("""CREATE TABLE if not exists questions (nervous text, panic text, breathingrapidly text, sweating text, troubleinconcentration text,
             insomnia text)""")
 
+        
         file = open('quests.csv')
         contents = csv.reader(file)
-        insertrec = "INSERT INTO questions (nervous, panic, breathingrapidly, sweating, troubleinconcentration, insomnia) VALUES(?, ?, ?, ?,?, ?)"
+        insertrec = "INSERT INTO questions (nervous, panic, breathingrapidly, sweating, troubleinconcentration, insomnia) VALUES(?, ?, ?, ?, ?, ?)"
         curs.executemany(insertrec, contents)
-
+        
         
         con.commit()
         con.close()
@@ -452,8 +485,7 @@ class SmallStepsApp(MDApp):
 
         return self.screen_manager
 
-    def on_start(self):
-        request_permissions([Permission.RECORD_AUDIO]) 
+    
 
 if __name__ == "__main__":
     SmallStepsApp().run()
