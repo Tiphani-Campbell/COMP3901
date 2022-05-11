@@ -178,25 +178,33 @@ class ChatBot(MDScreen):
         #tts.speak(message=mess)
         #self.ids.chatbox.add_widget(Response(text=mess))
         
-        def getquest():  #this can be moved I placed it here just for testing purposes
-            question = ""
+        def getquest(): 
+            track = [1,2,3,4,5,6, 7, 8]
+            r = random.randint(0,7)
+            n = track.pop(r)
             con = sqlite3.connect('journaldata.db')
             curs = con.cursor()
-            tasks = curs.execute( "SELECT * FROM questions").fetchone()
-            n = random.randint(0,5)
-            question = tasks[n]
+            query = f"SELECT * FROM questions WHERE rowid = '{n}';"
+            quest = curs.execute(query).fetchall()
+            
 
 
             con.commit()
             con.close()
                    
-            return question
+            return quest
 
 
 
+        
         randomquestion = getquest()
-        self.ids.chatbox.add_widget(Response(text=randomquestion))
-        tts.speak(randomquestion) 
+        questionlist = list(sum(randomquestion, ()))
+        question = questionlist.pop(0)
+
+        
+        self.ids.chatbox.add_widget(Response(text=question))
+
+        tts.speak(question) 
 
 
 
