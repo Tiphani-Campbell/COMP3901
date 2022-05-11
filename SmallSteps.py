@@ -468,15 +468,14 @@ class SmallStepsApp(MDApp):
         curs.execute("""CREATE TABLE if not exists journalentries (title text, entry text, date text)""")
         curs.execute("""CREATE TABLE if not exists journal (title text, entry text, date text)""")
         curs.execute("""CREATE TABLE if not exists questions (nervous text, panic text, breathingrapidly text, sweating text, troubleinconcentration text,
-            insomnia text)""")
+            insomnia text, troublewithwork text, hopelessness text, anger text, overreact text, changeineating text, suicidalthought text, feelingtired text,
+            closefriend text, socialmediaaddiction text, weightgain text, materialpossessions text, introvert text, intrusivethoughts text, havenightmares text,
+            antisocial text, feelingnegative text, troubleconcentrating text, blameself text)""")
 
-        
         file = open('quests.csv')
         contents = csv.reader(file)
-        insertrec = "INSERT INTO questions (nervous, panic, breathingrapidly, sweating, troubleinconcentration, insomnia) VALUES(?, ?, ?, ?, ?, ?)"
+        insertrec = "INSERT INTO questions (nervous, panic, breathingrapidly, sweating, troubleinconcentration, insomnia, troublewithwork, hopelessness, anger, overreact, changeineating, suicidalthought, feelingtired, closefriend, socialmediaaddiction, weightgain, materialpossessions, introvert, intrusivethoughts, havenightmares, antisocial, feelingnegative, troubleconcentrating, blameself) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         curs.executemany(insertrec, contents)
-        
-        
         con.commit()
         con.close()
 
