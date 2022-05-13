@@ -184,7 +184,7 @@ class JournalEntry(MDScreen):
 class ChatBot(MDScreen):
     global questionlist, questions
 
-    def getquest():  
+    def getquest():  #generates question list
         track = [1,2,3,4,5,6, 7, 8]
         n = track.pop()
         con = sqlite3.connect('journaldata.db')
@@ -200,9 +200,9 @@ class ChatBot(MDScreen):
         quest = list(sum(get, ()))   
         return quest
 
-    questionlist = getquest()
+    questionlist = getquest() #stores the question list
 
-    def questions():
+    def questions(): #loops through list one by one
         questlist = questionlist
         closing = "It was nice talking with you"
         if questlist != []:
@@ -251,7 +251,7 @@ class ChatBot(MDScreen):
         else:
            #print("0")
             respon.append(0)
-        next = questions()
+        next = questions() #calls for the next question in the list
         self.ids.chatbox.add_widget(Response(text=next))
         self.ids.usertext.text = ""
         #print(respon)
@@ -325,22 +325,7 @@ class ChatBot(MDScreen):
         self.ids.chatbox.add_widget(UserMessage(text=textr, size_hint_x = size))
         tts.speak(textr) 
 
-        def getquest():  #this can be moved I placed it here just for testing purposes
-            question = ""
-            con = sqlite3.connect('journaldata.db')
-            curs = con.cursor()
-            tasks = curs.execute( "SELECT * FROM questions").fetchone()
-            n = random.randint(0,5)
-            question = tasks[n]
-
-
-            con.commit()
-            con.close()
-                   
-            return question
-        randomquestion = getquest()
-        self.ids.chatbox.add_widget(Response(text=randomquestion))
-        tts.speak(randomquestion) 
+       
 
 class Progress(MDScreen):
     #write code here to mark an exercise complete
