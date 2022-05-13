@@ -108,10 +108,20 @@ class Signup(MDScreen):
        
 
 class Dashboard(MDScreen):
-    #edit this section to generate the recommended plans from the database.
+    #edit this section to generate the recommended plans from the database.  - needs to be updated/displays everything doesnt check for disorder
     def on_enter(self):
-        for i in range(0,10):
-            self.ids.reclist.add_widget(RecommendedPlans(plan_title='Plan', exercises='8 exercises'))
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        allplans = curs.execute("SELECT plans, exercises FROM plantypes").fetchall()
+
+        for plan in allplans:
+            self.ids.reclist.add_widget(RecommendedPlans(plan_title= plan[0], exercises=plan[1] + " " + "exercises"))
+               
+                    
+
+        con.commit()
+        con.close()
+        
     
 
 class Journal(MDScreen):
@@ -329,9 +339,25 @@ class Progress(MDScreen):
 class ChosenPlan(MDScreen):
     #edit this section to show all chosen plans
     def on_enter(self):
-        for i in range(0,12):
-            self.ids.aclist.add_widget(ActivePlans(plan_title='Plan', exercises='8 exercises'))
-        pass
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        check = f"SELECT COUNT (*) FROM usersplans;"
+        numplans = curs.execute(check)
+        if numplans != 0:
+            curs.execute("SELECT * FROM usersplans")
+            currentplans = curs.fetchall()
+
+
+            MDApp.get_running_app().screen_manager.get_screen("plans").ids.aclist.clear_widgets()
+
+
+     
+            for current in currentplans:
+                self.ids.aclist.add_widget(ActivePlans(plan_title=current[0], exercises= current[1]))
+        pass         
+
+        con.commit()
+        con.close()
 
 class Entry(BoxLayout):
     text = StringProperty()
@@ -464,8 +490,22 @@ class RecommendedPlans(MDCard):
     plan_title = StringProperty()
     exercises = StringProperty() #number of exercises
 
-    #write code here to choose a plan
+    
     def choose_plan(self):
+        plantype = self.ids.title.text
+        numex = self.ids.num_exercises.text
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        curs.execute("INSERT INTO usersplans VALUES (:plans, :exercises) ",
+        {
+            'plans' : plantype,
+            'exercises': numex
+        }
+        )
+        
+        con.commit()
+        con.close()
+        
         MDApp.get_running_app().screen_manager.transition.direction = "left"
         MDApp.get_running_app().screen_manager.current = "plans"
         
@@ -476,8 +516,19 @@ class ActivePlans(MDCard):
     exercises = StringProperty() #number of exercises
 
     #write code here to delete a plan, the steps are similar to deleting a journal entry
-    def delete_plan(self):
-        pass
+    def delete_plan(self): #incomplete- error in removing widgets
+        planname = self.ids.title.text
+        exerc = self.ids.num_exercises.text
+        type = ActivePlans(plan_title=planname, exercises= exerc)
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        task= "DELETE FROM usersplans WHERE plans= ? AND exercises = ?"
+        curs.execute(task, (planname, exerc,))
+        
+        con.commit()
+        con.close()
+        MDApp.get_running_app().screen_manager.get_screen("plans").remove_widget(type)
+        
     #write code here to display the exercises in a plan
     def view_exercises(self):
         MDApp.get_running_app().screen_manager.transition.direction = "left"
@@ -498,11 +549,21 @@ class SmallStepsApp(MDApp):
             insomnia text, troublewithwork text, hopelessness text, anger text, overreact text, changeineating text, suicidalthought text, feelingtired text,
             closefriend text, socialmediaaddiction text, weightgain text, materialpossessions text, introvert text, intrusivethoughts text, havenightmares text,
             antisocial text, feelingnegative text, troubleconcentrating text, blameself text)""")
+        
+        curs.execute("""CREATE TABLE if not exists plantypes (plans text, disorder text, exercises text)""")
+        curs.execute("""CREATE TABLE if not exists usersplans (plans text, exercises text)""")
 
         file = open('quests.csv')
         contents = csv.reader(file)
         insertrec = "INSERT INTO questions (nervous, panic, breathingrapidly, sweating, troubleinconcentration, insomnia, troublewithwork, hopelessness, anger, overreact, changeineating, suicidalthought, feelingtired, closefriend, socialmediaaddiction, weightgain, materialpossessions, introvert, intrusivethoughts, havenightmares, antisocial, feelingnegative, troubleconcentrating, blameself) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         curs.executemany(insertrec, contents)
+        
+        
+        pfile = open('plans.csv')
+        pcontents = csv.reader(pfile)
+        insertp = "INSERT INTO plantypes (plans, disorder, exercises) VALUES (?, ?, ?)"
+        curs.executemany(insertp, pcontents)
+        
         con.commit()
         con.close()
 
