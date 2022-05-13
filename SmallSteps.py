@@ -528,6 +528,25 @@ class ActivePlans(MDCard):
         con.commit()
         con.close()
         MDApp.get_running_app().screen_manager.get_screen("plans").remove_widget(type)
+
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        check = f"SELECT COUNT (*) FROM usersplans;"
+        numplans = curs.execute(check)
+        if numplans != 0:
+            curs.execute("SELECT * FROM usersplans")
+            plans = curs.fetchall()
+
+
+            MDApp.get_running_app().screen_manager.get_screen("plans").ids.aclist.clear_widgets()
+     
+            for plan in plans:
+                MDApp.get_running_app().screen_manager.get_screen("plans").ids.aclist.add_widget(
+                    ActivePlans(plan_title=plan[0], exercises= plan[1])
+                )           
+
+        con.commit()
+        con.close()
         
     #write code here to display the exercises in a plan
     def view_exercises(self):
