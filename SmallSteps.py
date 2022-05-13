@@ -24,7 +24,8 @@ import random
 #import wavio as wv
 import os
 
-
+global respon
+respon=[]
 class WindowManager(ScreenManager):
     Builder.load_file("screenbuild.kv")  
 
@@ -172,12 +173,7 @@ class ChatBot(MDScreen):
     def clearchat(self):
         self.ids.chatbox.clear_widgets()
 
-    def on_enter(self):
-        #self.ids.chatbox.clear_widgets()
-        #mess='Hello! How are you doing?'
-        #tts.speak(message=mess)
-        #self.ids.chatbox.add_widget(Response(text=mess))
-        
+    def on_enter(self):    
         def getquest(): 
             track = [1,2,3,4,5,6, 7, 8]
             r = random.randint(0,7)
@@ -210,6 +206,8 @@ class ChatBot(MDScreen):
 
     #add code to process text message here
     def sendmess(self):
+        responlistT=["yes","sometimes"]
+        responlistF=["no","never"]
         usermess=self.ids.usertext.text
         size=0
         if len(usermess)<6:
@@ -225,9 +223,21 @@ class ChatBot(MDScreen):
         else:
             size = 0.4
         self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
+        if any(x in usermess for x in responlistT):
+           print("1")
+           respon.append(1)
+        else:
+            print("0")
+            respon.append(0)
         self.ids.chatbox.add_widget(Response(text='blah'*30))
         self.ids.usertext.text = ""
+        print(respon)
+        tester=[0,1,1,1,1,0,1,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,1,0,0]
+        import pickle
 
+        disorder = pickle.load('disorder.pkl','rb')
+        print(disorder.predict(tester))
+        
      #add code to listen to user here and also test if the platform is android before doing the talk fucntion.
      # if it is android, display a message 'This feature is available on PC only'.  
     
