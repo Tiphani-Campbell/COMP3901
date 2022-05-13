@@ -182,45 +182,54 @@ class JournalEntry(MDScreen):
         
 
 class ChatBot(MDScreen):
+    global questionlist, questions
+
+    def getquest():  
+        track = [1,2,3,4,5,6, 7, 8]
+        n = track.pop()
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        query = f"SELECT * FROM questions WHERE rowid = '{n}';"
+        get = curs.execute(query).fetchall()
+            
+
+        
+        con.commit()
+        con.close()
+
+        quest = list(sum(get, ()))   
+        return quest
+
+    questionlist = getquest()
+
+    def questions():
+        questlist = questionlist
+        closing = "It was nice talking with you"
+        if questlist != []:
+            question = questlist.pop(0)
+            return question 
+        else:
+            return closing
+
     
     def clearchat(self):
         self.ids.chatbox.clear_widgets()
 
-    def on_enter(self):    
-        def getquest(): 
-            track = [1,2,3,4,5,6, 7, 8]
-            r = random.randint(0,7)
-            n = track.pop(r)
-            con = sqlite3.connect('journaldata.db')
-            curs = con.cursor()
-            query = f"SELECT * FROM questions WHERE rowid = '{n}';"
-            quest = curs.execute(query).fetchall()
-            
+    def on_enter(self):
+        greeting = "Hi, let's chat for a bit"
+        first = questions()
 
-
-            con.commit()
-            con.close()
-                   
-            return quest
-
-
-
-        
-        randomquestion = getquest()
-        questionlist = list(sum(randomquestion, ()))
-        question = questionlist.pop(0)
-
-        
-        self.ids.chatbox.add_widget(Response(text=question))
-
-        tts.speak(question) 
+        self.ids.chatbox.add_widget(Response(text=greeting))
+        tts.speak(greeting)
+        self.ids.chatbox.add_widget(Response(text=first))
+        tts.speak(first) 
 
 
 
     #add code to process text message here
     def sendmess(self):
-        responlistT=["yes","sometimes"]
-        responlistF=["no","never"]
+        responlistT=["yes","sometimes", "yeah", "yep", "maybe", "a little"]
+        responlistF=["no","never", "not really", "nah", "nope"]
         usermess=self.ids.usertext.text
         size=0
         if len(usermess)<6:
@@ -242,7 +251,8 @@ class ChatBot(MDScreen):
         else:
            #print("0")
             respon.append(0)
-        self.ids.chatbox.add_widget(Response(text='blah'*30))
+        next = questions()
+        self.ids.chatbox.add_widget(Response(text=next))
         self.ids.usertext.text = ""
         #print(respon)
 
