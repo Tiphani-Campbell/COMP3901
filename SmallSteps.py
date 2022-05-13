@@ -23,6 +23,8 @@ import random
 #from scipy.io.wavfile import write
 #import wavio as wv
 import os
+import pickle
+import numpy as np
 
 global respon
 respon=[]
@@ -224,19 +226,26 @@ class ChatBot(MDScreen):
             size = 0.4
         self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
         if any(x in usermess for x in responlistT):
-           print("1")
+           #print("1")
            respon.append(1)
         else:
-            print("0")
+           #print("0")
             respon.append(0)
         self.ids.chatbox.add_widget(Response(text='blah'*30))
         self.ids.usertext.text = ""
-        print(respon)
-        tester=[0,1,1,1,1,0,1,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,1,0,0]
-        import pickle
+        #print(respon)
 
-        disorder = pickle.load('disorder.pkl','rb')
-        print(disorder.predict(tester))
+        tester=[0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0]
+
+        array = np.array(tester)
+
+        newarr= array.reshape(1,-1)
+
+        disorder = pickle.load(open('disorder.pkl','rb'))
+        
+        #disorder.predict(newarr)
+
+        print(disorder.predict(newarr))
         
      #add code to listen to user here and also test if the platform is android before doing the talk fucntion.
      # if it is android, display a message 'This feature is available on PC only'.  
