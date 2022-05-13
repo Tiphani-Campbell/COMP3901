@@ -114,6 +114,7 @@ class Dashboard(MDScreen):
         curs = con.cursor()
         allplans = curs.execute("SELECT plans, exercises FROM plantypes").fetchall()
 
+
         for plan in allplans:
             self.ids.reclist.add_widget(RecommendedPlans(plan_title= plan[0], exercises=plan[1] + " " + "exercises"))
                
