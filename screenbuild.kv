@@ -434,6 +434,10 @@
             on_release:
                 root.manager.transition.direction="right"
                 root.manager.current = "dashboard"
+        MDLabel:
+            id: title
+            text: root.plan_title
+            
     ScrollView:
         size_hint_y: 0.85
         pos_hint:{"x": 0.1, "y": 0.05}
