@@ -182,27 +182,19 @@ class JournalEntry(MDScreen):
         
 
 class ChatBot(MDScreen):
-    global questionlist, questions
+    global questions, getquest, track
+    
 
-    def getquest():  #generates question list
-        track = [1,2,3,4,5,6, 7, 8]
-        n = track.pop()
-        con = sqlite3.connect('journaldata.db')
-        curs = con.cursor()
-        query = f"SELECT * FROM questions WHERE rowid = '{n}';"
-        get = curs.execute(query).fetchall()
+    track = [1, 2, 3, 4, 5, 6, 7, 8]
+
+    def getquest(qlist):  
+        global questionlist 
+        questionlist = qlist
             
 
         
-        con.commit()
-        con.close()
-
-        quest = list(sum(get, ()))   
-        return quest
-
-    questionlist = getquest() #stores the question list
-
-    def questions(): #loops through list one by one
+      
+    def questions():
         questlist = questionlist
         closing = "It was nice talking with you"
         if questlist != []:
@@ -216,13 +208,30 @@ class ChatBot(MDScreen):
         self.ids.chatbox.clear_widgets()
 
     def on_enter(self):
+        n = track.pop()
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        query = f"SELECT * FROM questions WHERE rowid = '{n}';"
+        get = curs.execute(query).fetchall()
+            
+        
+        con.commit()
+        con.close()
+
+        quest = list(sum(get, ())) 
+
         greeting = "Hi, let's chat for a bit"
-        first = questions()
+        first = quest.pop(0)
+       
 
         self.ids.chatbox.add_widget(Response(text=greeting))
         tts.speak(greeting)
         self.ids.chatbox.add_widget(Response(text=first))
         tts.speak(first) 
+        getquest(quest)
+        
+      
+        
 
 
 
@@ -251,6 +260,7 @@ class ChatBot(MDScreen):
         else:
            #print("0")
             respon.append(0)
+            
         next = questions() #calls for the next question in the list
         self.ids.chatbox.add_widget(Response(text=next))
         self.ids.usertext.text = ""
