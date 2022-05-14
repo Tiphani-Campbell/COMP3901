@@ -328,9 +328,29 @@ class ChatBot(MDScreen):
        
 
 class Progress(MDScreen):
-    #write code here to mark an exercise complete
+    plan_title = StringProperty() 
+
     def complete(self):
-        pass
+        ptype = self.ids.title
+        comp = "COMPLETED"
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        dotask= "DELETE FROM usersplans WHERE plans=?"
+        curs.execute(dotask, (ptype,))
+        curs.execute("INSERT INTO usersplans VALUES (:plans, :exercises) ",
+        {
+            'plans' : ptype,
+            'exercises': comp
+
+        }
+        )
+
+       
+        con.commit()
+        con.close()
+       
+        self.manager.transition.direction = "right"
+        self.manager.current = "plans" 
 
 class ChosenPlan(MDScreen):
     #edit this section to show all chosen plans
@@ -548,6 +568,7 @@ class ActivePlans(MDCard):
     def view_exercises(self):
         MDApp.get_running_app().screen_manager.transition.direction = "left"
         MDApp.get_running_app().screen_manager.current = "progress"
+        MDApp.get_running_app().screen_manager.current_screen.ids.title = self.plan_title
         for i in range (0,5):
             MDApp.get_running_app().screen_manager.get_screen("progress").ids.exlist.add_widget(MDLabel(text='hello'))
     
