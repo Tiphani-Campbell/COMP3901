@@ -399,6 +399,7 @@
             text_color: 140/255, 35/255, 205/255, 1
             user_font_size: "30sp"
             on_press: root.talk()
+            on_release:root.stoptalk()
         MDIconButton:
             icon: 'send'
             pos_hint: {"center_x": 0.95, "center_y":0.09}
@@ -437,7 +438,6 @@
         MDLabel:
             id: title
             text: root.plan_title
-            
     ScrollView:
         size_hint_y: 0.85
         pos_hint:{"x": 0.1, "y": 0.05}
