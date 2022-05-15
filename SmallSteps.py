@@ -18,16 +18,18 @@ from plyer import stt
 from plyer import tts
 import csv
 import random
-#import speech_recognition as sr
-#import sounddevice as sd
-#from scipy.io.wavfile import write
-#import wavio as wv
+import speech_recognition as sr
+import sounddevice as sd
+from scipy.io.wavfile import write
+import wavio as wv
 import os
 import pickle
 import numpy as np
 
 global respon
+global CurrFeeling
 respon=[]
+
 class WindowManager(ScreenManager):
     Builder.load_file("screenbuild.kv")  
 
@@ -183,29 +185,33 @@ class JournalEntry(MDScreen):
 
 class ChatBot(MDScreen):
     global questions, getquest, track
-    
-
-    track = [1, 2, 3, 4, 5, 6, 7, 8]
-
-    def getquest(qlist):  
+    track = [1,2,3,4,5,6, 7, 8]
+    def getquest(qlist):  #generates question list
         global questionlist 
         questionlist = qlist
-            
 
-        
-      
-    def questions():
+    def questions(): #loops through list one by one
         questlist = questionlist
         closing = "It was nice talking with you"
         if questlist != []:
             question = questlist.pop(0)
             return question 
         else:
+            print (respon)
+            array = np.array(respon)
+
+            newarr= array.reshape(1,-1)
+
+            disorder = pickle.load(open('disorder.pkl','rb'))
+
+            print(disorder.predict(newarr))
+            CurrFeeling= disorder.predict(newarr)
             return closing
 
     
     def clearchat(self):
         self.ids.chatbox.clear_widgets()
+        print (CurrFeeling)
 
     def on_enter(self):
         n = track.pop()
@@ -229,15 +235,10 @@ class ChatBot(MDScreen):
         self.ids.chatbox.add_widget(Response(text=first))
         tts.speak(first) 
         getquest(quest)
-        
-      
-        
-
-
 
     #add code to process text message here
     def sendmess(self):
-        responlistT=["yes","sometimes", "yeah", "yep", "maybe", "a little"]
+        responlistT=["yes","sometimes", "yeah", "yep", "yea", "maybe", "a little", "i am"]
         responlistF=["no","never", "not really", "nah", "nope"]
         usermess=self.ids.usertext.text
         size=0
@@ -260,28 +261,34 @@ class ChatBot(MDScreen):
         else:
            #print("0")
             respon.append(0)
-            
+
         next = questions() #calls for the next question in the list
+        tts.speak(next)
         self.ids.chatbox.add_widget(Response(text=next))
         self.ids.usertext.text = ""
         #print(respon)
 
-        tester=[0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0]
+        #tester=[0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0]
 
-        array = np.array(tester)
+        #array = np.array(tester)
 
-        newarr= array.reshape(1,-1)
+        #newarr= array.reshape(1,-1)
 
-        disorder = pickle.load(open('disorder.pkl','rb'))
+        #disorder = pickle.load(open('disorder.pkl','rb'))
         
         #disorder.predict(newarr)
 
-        print(disorder.predict(newarr))
+       # print(disorder.predict(newarr))
         
      #add code to listen to user here and also test if the platform is android before doing the talk fucntion.
      # if it is android, display a message 'This feature is available on PC only'.  
     
     def talk(self):
+        import winsound
+        beepfreq = 1000
+        due = 1000
+        winsound.Beep(beepfreq, due)
+
         #Sampling frequency
         freq = 44100
         print('hi')
@@ -296,9 +303,8 @@ class ChatBot(MDScreen):
         sd.wait()
         if os.path.exists("recording1.wav"):
             os.remove("recording1.wav")
-        else:
-            print("The file does not exist")
         wv.write("recording1.wav", recording, freq, sampwidth=2)
+        
 
     def stoptalk(self):
         
@@ -333,13 +339,24 @@ class ChatBot(MDScreen):
             size = 0.4
 
         self.ids.chatbox.add_widget(UserMessage(text=textr, size_hint_x = size))
-        tts.speak(textr) 
-
+        responlistT=["yes","sometimes", "yeah", "yep", "yea", "maybe", "a little", "i am"]
+        print ("IM here")
+        if any(x in textr for x in responlistT):
+           #print("1")
+           respon.append(1)
+        else:
+           #print("0")
+            respon.append(0)
+        #tts.speak(textr) 
+        next = questions() #calls for the next question in the list
+        tts.speak(next)
+        self.ids.chatbox.add_widget(Response(text=next))
+        self.ids.usertext.text = ""
        
 
 class Progress(MDScreen):
-    plan_title = StringProperty() 
-
+    #write code here to mark an exercise complete
+    plan_title = StringProperty()
     def complete(self):
         ptype = self.ids.title
         comp = "COMPLETED"
@@ -360,7 +377,7 @@ class Progress(MDScreen):
         con.close()
        
         self.manager.transition.direction = "right"
-        self.manager.current = "plans" 
+        self.manager.current = "plans"
 
 class ChosenPlan(MDScreen):
     #edit this section to show all chosen plans
