@@ -591,11 +591,25 @@ class ActivePlans(MDCard):
         
     #write code here to display the exercises in a plan
     def view_exercises(self):
+        type = self.ids.title.text
         MDApp.get_running_app().screen_manager.transition.direction = "left"
         MDApp.get_running_app().screen_manager.current = "progress"
         MDApp.get_running_app().screen_manager.current_screen.ids.title = self.plan_title
-        for i in range (0,5):
-            MDApp.get_running_app().screen_manager.get_screen("progress").ids.exlist.add_widget(MDLabel(text='hello'))
+
+        con = sqlite3.connect('journaldata.db')
+        curs = con.cursor()
+        getlist = "SELECT * FROM exerciselist WHERE types=?"
+        exer = curs.execute(getlist, (type,))
+        activities = list(sum(exer, ())) 
+        activities.pop(0)
+
+        for activity in activities:
+            MDApp.get_running_app().screen_manager.get_screen("progress").ids.exlist.add_widget(MDLabel(text=activity))
+
+        
+
+        con.commit()
+        con.close()
     
         
 
@@ -613,6 +627,9 @@ class SmallStepsApp(MDApp):
         
         curs.execute("""CREATE TABLE if not exists plantypes (plans text, disorder text, exercises text)""")
         curs.execute("""CREATE TABLE if not exists usersplans (plans text, exercises text)""")
+        curs.execute("""CREATE TABLE if not exists exerciselist (types text, exercise1 text, exercise2 text,
+            exercise3 text, exercise4 text, exercise5 text, exercise6 text, exercise7 text, exercise8 text, 
+            exercise9 text, exercise10 text)""")
 
         file = open('quests.csv')
         contents = csv.reader(file)
@@ -624,6 +641,11 @@ class SmallStepsApp(MDApp):
         pcontents = csv.reader(pfile)
         insertp = "INSERT INTO plantypes (plans, disorder, exercises) VALUES (?, ?, ?)"
         curs.executemany(insertp, pcontents)
+        
+        efile = open('exercises.csv')
+        econtents = csv.reader(efile)
+        insertex = "INSERT INTO exerciselist (types, exercise1, exercise2, exercise3, exercise4, exercise5, exercise6, exercise7, exercise8, exercise9, exercise10) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        curs.executemany(insertex, econtents)
         
         con.commit()
         con.close()
