@@ -2,7 +2,7 @@ from turtle import title
 from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivymd.uix.screen import MDScreen
-from kivy.properties import StringProperty, NumericProperty, ObjectProperty, DictProperty
+from kivy.properties import StringProperty, NumericProperty
 from kivymd.toast import toast
 from kivy import platform
 from kivymd.uix.card import MDCard
@@ -11,10 +11,9 @@ from kivy.clock import Clock
 import sqlite3 
 from datetime import date
 from kivymd.uix.label import MDLabel
+from kivy.uix.label import Label
 from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.selectioncontrol import MDCheckbox
 from kivy.uix.screenmanager import ScreenManager
-from plyer import stt
 from plyer import tts
 import csv
 import random
@@ -395,7 +394,7 @@ class ChosenPlan(MDScreen):
      
             for current in currentplans:
                 self.ids.aclist.add_widget(ActivePlans(plan_title=current[0], exercises= current[1]))
-        pass         
+                 
 
         con.commit()
         con.close()
@@ -600,16 +599,23 @@ class ActivePlans(MDCard):
         curs = con.cursor()
         getlist = "SELECT * FROM exerciselist WHERE types=?"
         exer = curs.execute(getlist, (type,))
-        activities = list(sum(exer, ())) 
+        activities = list(exer)
         activities.pop(0)
-
-        for activity in activities:
-            MDApp.get_running_app().screen_manager.get_screen("progress").ids.exlist.add_widget(MDLabel(text=activity))
-
         
-
+        
+    
+        for activity in activities[0]:
+            MDApp.get_running_app().screen_manager.current_screen.ids.exlist.add_widget(
+                Label(
+                    text=activity,
+                    halign = "center",
+                )
+                )
+        
         con.commit()
         con.close()
+
+        
     
         
 
