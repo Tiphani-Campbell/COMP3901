@@ -192,12 +192,14 @@ class ChatBot(MDScreen):
 
     def questions(): #loops through list one by one
         questlist = questionlist
-        closing = "It was nice talking with you"
+        closing = "It was nice talking with you \n Calculating A Feeling Based on Your answers."
         if questlist != []:
             question = questlist.pop(0)
             return question 
         else:
+            
             print (respon)
+
             array = np.array(respon)
 
             newarr= array.reshape(1,-1)
@@ -205,13 +207,22 @@ class ChatBot(MDScreen):
             disorder = pickle.load(open('disorder.pkl','rb'))
 
             print(disorder.predict(newarr))
-            CurrFeeling= disorder.predict(newarr)
+            CurrFeeling= disorder.predict(newarr)[0]
+            if CurrFeeling==1:
+                print("Anxiety")
+            elif CurrFeeling==2:
+                print("Depression")
+            elif CurrFeeling==3:
+                print("Loneliness")
+            elif CurrFeeling==4:
+                print("Stress")
+            elif CurrFeeling==5:
+                print("Normal")
             return closing
 
     
     def clearchat(self):
         self.ids.chatbox.clear_widgets()
-        print (CurrFeeling)
 
     def on_enter(self):
         n = track.pop()
@@ -266,20 +277,7 @@ class ChatBot(MDScreen):
         tts.speak(next)
         self.ids.chatbox.add_widget(Response(text=next))
         self.ids.usertext.text = ""
-        #print(respon)
 
-        #tester=[0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0]
-
-        #array = np.array(tester)
-
-        #newarr= array.reshape(1,-1)
-
-        #disorder = pickle.load(open('disorder.pkl','rb'))
-        
-        #disorder.predict(newarr)
-
-       # print(disorder.predict(newarr))
-        
      #add code to listen to user here and also test if the platform is android before doing the talk fucntion.
      # if it is android, display a message 'This feature is available on PC only'.  
     
