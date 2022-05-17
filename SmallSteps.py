@@ -683,7 +683,7 @@ class SmallStepsApp(MDApp):
         curs.execute("""CREATE TABLE if not exists usersplans (plans text, exercises text)""")
         curs.execute("""CREATE TABLE if not exists exerciselist (types text, exercise1 text, exercise2 text,
             exercise3 text, exercise4 text, exercise5 text, exercise6 text, exercise7 text, exercise8 text, 
-            exercise9 text, exercise10 text)""")
+            exercise9 text, exercise10 text, exercise11 text)""")
 
         file = open('quests.csv')
         contents = csv.reader(file)
@@ -698,7 +698,7 @@ class SmallStepsApp(MDApp):
         
         efile = open('exercises.csv')
         econtents = csv.reader(efile)
-        insertex = "INSERT INTO exerciselist (types, exercise1, exercise2, exercise3, exercise4, exercise5, exercise6, exercise7, exercise8, exercise9, exercise10) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        insertex = "INSERT INTO exerciselist (types, exercise1, exercise2, exercise3, exercise4, exercise5, exercise6, exercise7, exercise8, exercise9, exercise10, exercise11) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         curs.executemany(insertex, econtents)
         
         con.commit()
