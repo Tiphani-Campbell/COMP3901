@@ -191,7 +191,7 @@ class ChatBot(MDScreen):
 
     def questions(): #loops through list one by one
         questlist = questionlist
-        closing = "It was nice talking with you \nCalculating A Feeling Based on Your answers."
+        closing = "It was nice talking with you \nNow I will be calculating a feeling based on your answers."
         if questlist != []:
             question = questlist.pop(0)
             return question 
@@ -210,14 +210,19 @@ class ChatBot(MDScreen):
             CurrFeeling= disorder.predict(newarr)[0]
             if CurrFeeling==1:
                 print("Anxiety")
+                CurrFeeling="Anxiety"
             elif CurrFeeling==2:
                 print("Depression")
+                CurrFeeling="Depression"
             elif CurrFeeling==3:
                 print("Loneliness")
+                CurrFeeling="Loneliness"
             elif CurrFeeling==4:
                 print("Stress")
+                CurrFeeling="Stress"
             elif CurrFeeling==5:
                 print("Normal")
+                CurrFeeling="Normal"
             return closing
 
 
@@ -250,34 +255,46 @@ class ChatBot(MDScreen):
 
     #add code to process text message here
     def sendmess(self):
+        
         responlistT=["yes","sometimes", "yeah", "yep", "yea", "maybe", "a little", "i am"]
         responlistF=["no","never", "not really", "nah", "nope"]
         usermess=self.ids.usertext.text
-        size=0
-        if len(usermess)<6:
-            size = 0.12
-        elif len(usermess)< 11:
-            size = 0.2
-        elif len(usermess) < 16:
-            size = 0.22
-        elif len(usermess)<21:
-            size=0.28
-        elif len(usermess)<26:
-            size = 0.3
-        else:
-            size = 0.4
-        self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
-        if any(x in usermess for x in responlistT):
-           #print("1")
-           respon.append(1)
-        else:
-           #print("0")
-            respon.append(0)
-      
-        next = questions() #calls for the next question in the list
-        tts.speak(next)
-        self.ids.chatbox.add_widget(Response(text=next))
-        self.ids.usertext.text = ""
+        if usermess!="":
+            size=0
+            if len(usermess)<6:
+                size = 0.12
+            elif len(usermess)< 11:
+                size = 0.2
+            elif len(usermess) < 16:
+                size = 0.22
+            elif len(usermess)<21:
+                size=0.28
+            elif len(usermess)<26:
+                size = 0.3
+            else:
+                size = 0.4
+            self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
+            if any(x in usermess for x in responlistT):
+                #print("1")
+                respon.append(1)
+            else:
+            #print("0")
+                respon.append(0)
+
+            next = questions()#calls for the next question in the list
+            if next == "It was nice talking with you \nNow I will be calculating a feeling based on your answers.":
+                tts.speak(next)
+                self.ids.chatbox.add_widget(Response(text=next))
+                self.ids.usertext.text = ""
+                FPredict="I am predicting that your current feeling is " + CurrFeeling
+                tts.speak(FPredict)
+                self.ids.chatbox.add_widget(Response(text=FPredict))
+                self.ids.usertext.text = ""
+            else:
+                tts.speak(next)
+                self.ids.chatbox.add_widget(Response(text=next))
+                self.ids.usertext.text = ""
+
         
      #add code to listen to user here and also test if the platform is android before doing the talk fucntion.
      # if it is android, display a message 'This feature is available on PC only'.  
@@ -348,11 +365,11 @@ class ChatBot(MDScreen):
             respon.append(0)
         #tts.speak(textr) 
         next = questions() #calls for the next question in the list
-        if next == "It was nice talking with you \nCalculating A Feeling Based on Your answers.":
+        if next == "It was nice talking with you \nNow I will be calculating a feeling based on your answers.":
             tts.speak(next)
             self.ids.chatbox.add_widget(Response(text=next))
             self.ids.usertext.text = ""
-            FPredict="Predicting your feeling" + CurrFeeling
+            FPredict="I am predicting that your current feeling is " + CurrFeeling
             tts.speak(FPredict)
             self.ids.chatbox.add_widget(Response(text=FPredict))
             self.ids.usertext.text = ""
