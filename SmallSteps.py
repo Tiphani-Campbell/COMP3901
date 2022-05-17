@@ -185,6 +185,7 @@ class JournalEntry(MDScreen):
 class ChatBot(MDScreen):
     global questions, getquest, track
     track = [1,2,3,4,5,6, 7, 8]
+
     def getquest(qlist):  #generates question list
         global questionlist 
         questionlist = qlist
@@ -223,6 +224,7 @@ class ChatBot(MDScreen):
             elif CurrFeeling==5:
                 print("Normal")
                 CurrFeeling="Normal"
+            respon.clear()
             return closing
 
 
@@ -256,7 +258,7 @@ class ChatBot(MDScreen):
     #add code to process text message here
     def sendmess(self):
         
-        responlistT=["yes","sometimes", "yeah", "yep", "yea", "maybe", "a little", "i am"]
+        responlistT=["yes","sometimes", "yeah", "yep", "yea", "maybe", "a little", "i am","sure"]
         responlistF=["no","never", "not really", "nah", "nope"]
         usermess=self.ids.usertext.text
         if usermess!="":
@@ -274,6 +276,7 @@ class ChatBot(MDScreen):
             else:
                 size = 0.4
             self.ids.chatbox.add_widget(UserMessage(text=usermess, size_hint_x = size))
+            usermess=usermess.lower()
             if any(x in usermess for x in responlistT):
                 #print("1")
                 respon.append(1)
@@ -307,7 +310,6 @@ class ChatBot(MDScreen):
 
         #Sampling frequency
         freq = 44100
-        print('hi')
         #Recording duration
         duration = 5
         #Start recorder with the given values of 
@@ -355,8 +357,9 @@ class ChatBot(MDScreen):
             size = 0.4
 
         self.ids.chatbox.add_widget(UserMessage(text=textr, size_hint_x = size))
-        responlistT=["yes","sometimes", "yeah", "yep", "yea", "maybe", "a little", "i am"]
+        responlistT=["yes","sometimes", "yeah", "yep", "yea", "maybe", "a little", "i am","ya"]
         print ("IM here")
+        textr=textr.lower()
         if any(x in textr for x in responlistT):
            #print("1")
            respon.append(1)
