@@ -7,7 +7,7 @@ from kivymd.toast import toast
 from kivy import platform
 from kivymd.uix.card import MDCard
 from kivy.uix.boxlayout import BoxLayout
-from kivy.clock import Clock
+from kivy.uix.popup import Popup
 import sqlite3 
 from datetime import date
 from kivymd.uix.label import MDLabel
@@ -16,7 +16,6 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivy.uix.screenmanager import ScreenManager
 from plyer import tts
 import csv
-import random
 import speech_recognition as sr
 import sounddevice as sd
 from scipy.io.wavfile import write
@@ -33,7 +32,7 @@ class WindowManager(ScreenManager):
     Builder.load_file("screenbuild.kv")  
 
 class Login(MDScreen):
-    #enter code for verification user here
+    #enter code for verification user here        
     def login_user(self):
         username = self.username.text #this is how you get text from the fields. it's self.<textfield id>.text
         password = self.password.text
@@ -668,6 +667,10 @@ class ActivePlans(MDCard):
         
 
 class SmallStepsApp(MDApp):
+    def on_start(self):
+        popup=Popup(title='Notice', title_color=[0,0,0,1], separator_color=[1,0,1,1], title_align='center', size_hint= (None, None),size=(600,400),background='white',content=Label(text='Small Steps is not to be used as a replacement for a mental health professional.\n If this application does not suit your needs you may visit www.imalive.org', color=[0,0,0,1]))
+        popup.open()
+
     def build(self):
         con = sqlite3.connect('journaldata.db')
         curs = con.cursor()
