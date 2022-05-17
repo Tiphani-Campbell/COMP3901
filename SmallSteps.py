@@ -114,12 +114,12 @@ class Dashboard(MDScreen):
         con = sqlite3.connect('journaldata.db')
         curs = con.cursor()
         allplans = curs.execute("SELECT plans, exercises FROM plantypes").fetchall()
+        plans=allplans[0:18]
 
-
-        for plan in allplans:
+        for plan in plans:
             self.ids.reclist.add_widget(RecommendedPlans(plan_title= plan[0], exercises=plan[1] + " " + "exercises"))
                
-                    
+            
 
         con.commit()
         con.close()
@@ -191,7 +191,7 @@ class ChatBot(MDScreen):
 
     def questions(): #loops through list one by one
         questlist = questionlist
-        closing = "It was nice talking with you \n Calculating A Feeling Based on Your answers."
+        closing = "It was nice talking with you \nCalculating A Feeling Based on Your answers."
         if questlist != []:
             question = questlist.pop(0)
             return question 
@@ -206,6 +206,7 @@ class ChatBot(MDScreen):
             disorder = pickle.load(open('disorder.pkl','rb'))
 
             print(disorder.predict(newarr))
+            global CurrFeeling
             CurrFeeling= disorder.predict(newarr)[0]
             if CurrFeeling==1:
                 print("Anxiety")
@@ -218,6 +219,7 @@ class ChatBot(MDScreen):
             elif CurrFeeling==5:
                 print("Normal")
             return closing
+
 
     
     def clearchat(self):
@@ -271,12 +273,12 @@ class ChatBot(MDScreen):
         else:
            #print("0")
             respon.append(0)
-
+      
         next = questions() #calls for the next question in the list
         tts.speak(next)
         self.ids.chatbox.add_widget(Response(text=next))
         self.ids.usertext.text = ""
-
+        
      #add code to listen to user here and also test if the platform is android before doing the talk fucntion.
      # if it is android, display a message 'This feature is available on PC only'.  
     
@@ -346,10 +348,19 @@ class ChatBot(MDScreen):
             respon.append(0)
         #tts.speak(textr) 
         next = questions() #calls for the next question in the list
-        tts.speak(next)
-        self.ids.chatbox.add_widget(Response(text=next))
-        self.ids.usertext.text = ""
-       
+        if next == "It was nice talking with you \nCalculating A Feeling Based on Your answers.":
+            tts.speak(next)
+            self.ids.chatbox.add_widget(Response(text=next))
+            self.ids.usertext.text = ""
+            FPredict="Predicting your feeling" + CurrFeeling
+            tts.speak(FPredict)
+            self.ids.chatbox.add_widget(Response(text=FPredict))
+            self.ids.usertext.text = ""
+        else:
+            tts.speak(next)
+            self.ids.chatbox.add_widget(Response(text=next))
+            self.ids.usertext.text = ""
+        
 
 class Progress(MDScreen):
     #write code here to mark an exercise complete
@@ -593,6 +604,7 @@ class ActivePlans(MDCard):
         type = self.ids.title.text
         MDApp.get_running_app().screen_manager.transition.direction = "left"
         MDApp.get_running_app().screen_manager.current = "progress"
+        MDApp.get_running_app().screen_manager.current_screen.ids.exlist.clear_widgets()
         MDApp.get_running_app().screen_manager.current_screen.ids.title = self.plan_title
 
         con = sqlite3.connect('journaldata.db')
@@ -603,7 +615,7 @@ class ActivePlans(MDCard):
         activities.pop(0)
         
         
-    
+        
         for activity in activities[0]:
             MDApp.get_running_app().screen_manager.current_screen.ids.exlist.add_widget(
                 Label(
